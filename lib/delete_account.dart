@@ -2,9 +2,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-void main() async {
+import 'firebase_options.dart';
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -112,7 +116,7 @@ class DeleteAccountPageState extends State<DeleteAccountPage> {
                 ),
                 focusedErrorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.red, width: 1.2), // 포커스가 있을 때 오류 테두리
+                  borderSide: BorderSide(color: Colors.red, width: 1.2),
                 ),
               ),
             ),
@@ -128,6 +132,7 @@ class DeleteAccountPageState extends State<DeleteAccountPage> {
                   borderSide: BorderSide.none,
                 ),
                 hintText: '비밀번호 확인 입력',
+                //오류메시지
                 errorText: errorMessage1,
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -135,7 +140,7 @@ class DeleteAccountPageState extends State<DeleteAccountPage> {
                 ),
                 focusedErrorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.red, width: 1.2), // 포커스가 있을 때 오류 테두리
+                  borderSide: BorderSide(color: Colors.red, width: 1.2),
                 ),
               ),
             ),
