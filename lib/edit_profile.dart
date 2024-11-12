@@ -80,6 +80,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Future<void> updateProfile() async {
     final userNewNickname = newNicknameController.text.trim();
+    Navigator.pop(context, true);
 
     if (profileImage != null) {
       final storageRef = FirebaseStorage.instance.ref().child("profileImage/${user?.uid}.jpg");
