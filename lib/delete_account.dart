@@ -150,8 +150,12 @@ class DeleteAccountPageState extends State<DeleteAccountPage> {
                 backgroundColor: Colors.grey[700],
                 minimumSize: Size(150, 50),
               ),
-              onPressed: () {
-                deleteAccount(context);
+              onPressed: () async {
+                await deleteAccount(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                );
               },
               child: Text(
                 '계정 삭제',
