@@ -1,6 +1,5 @@
 import 'dart:io';
 
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -80,6 +79,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Future<void> updateProfile() async {
     final userNewNickname = newNicknameController.text.trim();
+    Navigator.pop(context, true);
 
     if (profileImage != null) {
       final storageRef = FirebaseStorage.instance.ref().child("profileImage/${user?.uid}.jpg");
