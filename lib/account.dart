@@ -59,7 +59,10 @@ class AccountPage extends StatelessWidget {
               title: Text('계정 삭제',style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
               tileColor: Colors.grey[100],
               onTap: () {
-                // 계정 삭제 기능 추가
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => DeleteAccountPage()),
+                );
               },
             ),
           ),
