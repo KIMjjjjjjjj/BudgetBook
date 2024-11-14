@@ -43,7 +43,7 @@ class SharingSettingsPage extends StatelessWidget {
                 ),
                 SizedBox(width: 10.0),
                 SizedBox(
-                  height: 25.0, width: 60.0,
+                  height: 25.0, width: 40.0,
                   child: ElevatedButton(
                     onPressed: () {},
                     child: Text(
@@ -61,7 +61,7 @@ class SharingSettingsPage extends StatelessWidget {
             ),
             SizedBox(height: 10.0),
             SizedBox(
-              width: 200.0, height: 50.0,
+              width: 300.0, height: 50.0,
               child: TextField(
                 decoration: InputDecoration(
                   filled: true,
