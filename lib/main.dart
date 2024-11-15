@@ -23,8 +23,7 @@ class MyBody extends StatelessWidget{
           MyWidget2(),
           MyWidget3(),
           MyWidget4(),
-          MyWidget5(),
-          MyWidget6(),
+          MyWidget56(),
           MyWidget7(),
 
         ]
@@ -277,14 +276,16 @@ class _MyWidget4State extends State<MyWidget4> {
   }
 }
 
-class MyWidget5 extends StatefulWidget {
+class MyWidget56 extends StatefulWidget {
 
   @override
-  _MyWidget5State createState() => _MyWidget5State();
+  _MyWidget56State createState() => _MyWidget56State();
 }
-class _MyWidget5State extends State<MyWidget5> {
+class _MyWidget56State extends State<MyWidget56> {
   bool _isValidPassword = true;
   final _passwordController = TextEditingController();
+  bool _isPasswordMatching = true;
+  final _confirmPasswordController = TextEditingController();
 
   @override
   void dispose() {
@@ -297,46 +298,97 @@ class _MyWidget5State extends State<MyWidget5> {
     // TODO: implement build
     return Padding(
         padding: EdgeInsets.all(8.0),
-        child: Row(
-            children: <Widget>[
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+           Row(
+              children: <Widget>[
 
-              Expanded(
-                flex: 1, child: Text('비밀번호', textAlign: TextAlign.center),),
-              Expanded(flex: 4,
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextField(
-                          controller: _passwordController,
-                          style: TextStyle(fontSize: 10.0),
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(borderSide: BorderSide(
-                              color: _isValidPassword ? Colors.grey : Colors
-                                  .red,),),
-                            contentPadding: EdgeInsets.symmetric(vertical: 8.0),
-                            isDense: true,
-                          ),
-                          onChanged: (text) {
-                            setState(() {
-                              _isValidPassword = _validatePassword(text);
-                            });
-                          },),
-                        SizedBox(height: 4),
-                        Text('영문자/숫자/특수문자를 모두 포함하여 최소 8자 이상 입력',
-                          style: TextStyle(
-                              fontSize: 12, color: _isValidPassword ?
-                          Colors.grey : Colors.red),),
+                Expanded(
+                  flex: 1, child: Text('비밀번호', textAlign: TextAlign.center),),
+                Expanded(flex: 4,
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextField(
+                            controller: _passwordController,
+                            style: TextStyle(fontSize: 10.0),
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(borderSide: BorderSide(
+                                color: _isValidPassword ? Colors.grey : Colors
+                                    .red,),),
+                              contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+                              isDense: true,
+                            ),
+                            onChanged: (text) {
+                              setState(() {
+                                _isValidPassword = _validatePassword(text);
+                              });
+                            },),
+                          SizedBox(height: 4),
+                          Text('영문자/숫자/특수문자를 모두 포함하여 최소 8자 이상 입력',
+                            style: TextStyle(
+                                fontSize: 12, color: _isValidPassword ?
+                            Colors.grey : Colors.red),),
 
-                      ]
+                        ]
 
-                  )
+                    )
 
 
-                /*
+                  /*
                 Widget을 넣을 위치
                 */
 
-              )
+                ),
+          ],
+        ),
+    Row(
+    children: <Widget>[
+        Expanded(
+                flex: 1,
+                child: Text(
+                  '비밀번호 확인',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 10.0),
+                ),
+              ),
+              Expanded(
+                flex: 4,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextField(
+                      controller: _confirmPasswordController,
+                      style: TextStyle(fontSize: 10.0),
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: _isPasswordMatching ? Colors.grey : Colors.red,
+                          ),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(vertical: 8.0),
+                        isDense: true,
+                      ),
+                      onChanged: (text) {
+                        setState(() {
+                          final password = _passwordController.text;
+                          _isPasswordMatching = text == password;
+                        });
+                      },
+                    ),
+                    SizedBox(height: 2),
+                    // 오류 메시지 표시 부분을 Column 위젯 안으로 이동
+                    if (!_isPasswordMatching)
+                      Text(
+                        '비밀번호가 일치하지 않습니다',
+                        style: TextStyle(fontSize: 12, color: Colors.red),
+                      ),
+                  ],
+                ),
+              ),
+              ])
+
 
             ])
     );
@@ -372,73 +424,7 @@ class _MyWidget5State extends State<MyWidget5> {
 
 
 
-class MyWidget6 extends StatefulWidget{
-  @override
-  _MyWidget6State createState() => _MyWidget6State();
-}
-class _MyWidget6State extends State<MyWidget6> {
-  bool _isPasswordMatching = true;
-  final _confirmPasswordController = TextEditingController();
 
-  @override
-  void dispose() {
-    _confirmPasswordController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(8.0),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            flex: 1,
-            child: Text(
-              '비밀번호 확인',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 10.0),
-            ),
-          ),
-          Expanded(
-            flex: 4,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                TextField(
-                  controller: _confirmPasswordController,
-                  style: TextStyle(fontSize: 10.0),
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: _isPasswordMatching ? Colors.grey : Colors.red,
-                      ),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(vertical: 8.0),
-                    isDense: true,
-                  ),
-                  onChanged: (text) {
-                    final password = (context.findAncestorStateOfType<_MyWidget5State>()!._passwordController).text;
-                    setState(() {
-                      _isPasswordMatching = text == password;
-                    });
-                  },
-                ),
-                SizedBox(height: 2),
-                // 오류 메시지 표시 부분을 Column 위젯 안으로 이동
-                if (!_isPasswordMatching)
-                  Text(
-                    '비밀번호가 일치하지 않습니다',
-                    style: TextStyle(fontSize: 12, color: Colors.red),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 
 
