@@ -113,7 +113,7 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 IconButton(
                   icon: Icon(Icons.delete, color: Colors.grey),
                   onPressed: () {
-
+                    //버튼 클릭시 삭제
                   },
                 ),
               ],
