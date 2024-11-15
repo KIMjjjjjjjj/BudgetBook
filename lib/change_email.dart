@@ -16,6 +16,8 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
   final TextEditingController _currentPasswordController = TextEditingController();
   final TextEditingController _newEmailController = TextEditingController();
   final TextEditingController _verificationCodeController = TextEditingController();
+  String? errorMessage1;
+  String? errorMessage2;
 
   String? _generatedCode;
   bool _isCodeVerified = false;
@@ -62,14 +64,15 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
     if (_verificationCodeController.text == _generatedCode) {
       setState(() {
         _isCodeVerified = true;
+        errorMessage2 = null;
       });
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('인증이 완료되었습니다.'))
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('인증 코드가 일치하지 않습니다.'))
-          );
+      setState(() {
+        errorMessage2 = '인증 코드가 일치하지 않습니다.';
+      });
     }
   }
 
@@ -95,16 +98,18 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
           context,
           MaterialPageRoute(builder: (context) => LoginPage()),
         );
-            } catch (error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('$error'))
-        );
+            }  catch (error) {
+        setState(() {
+          errorMessage1 = '현재 비밀번호가 올바르지 않습니다.';
+        });
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('인증을 먼저 완료해주세요.'))
       );
+
     }
+
   }
 
   @override
@@ -141,6 +146,15 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
                   hintStyle: TextStyle(color: Colors.grey[600]),
                   filled: true,
                   fillColor: Colors.grey[300],
+                  errorText: errorMessage1,
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.red, width: 1.2),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.red, width: 1.2),
+                  ),
                   border: OutlineInputBorder(borderSide: BorderSide.none),
                 ),
                 enabled: true,
@@ -196,6 +210,15 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
                       hintStyle: TextStyle(color: Colors.grey[600]),
                       filled: true,
                       fillColor: Colors.grey[300],
+                      errorText: errorMessage2,
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.red, width: 1.2),
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.red, width: 1.2),
+                      ),
                       border: OutlineInputBorder(borderSide: BorderSide.none),
                     ),
                   ),
