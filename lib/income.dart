@@ -198,12 +198,16 @@ class _ExpensePageState extends State<ExpensePage> {
         ElevatedButton(
           onPressed: () async {
             if (ExpenseError()) {
-              await FirebaseFirestore.instance.collection('expense').add({
+              final element = FirebaseAuth.instance.currentUser?.uid;
+              CollectionReference subCollection = FirebaseFirestore.instance.collection('users').doc(element).collection('expense');
+              await subCollection.add({
                 'date': selectedDateTime,
                 'expenseAmount': int.parse(expenseAmountController.text.trim()),
+                'year' : selectedDateTime.year,
+                'month' : selectedDateTime.month,
+                'day' : selectedDateTime.day,
                 'category': selectedCategory,
                 'memo': memoController.text,
-                'uId': FirebaseAuth.instance.currentUser?.uid,
               });
 
               Navigator.pop(context);
@@ -359,12 +363,16 @@ class _IncomePageState extends State<IncomePage>{
         ElevatedButton(
           onPressed: () async {
             if (IncomeError()) {
-              await FirebaseFirestore.instance.collection('expense').add({
+              final element = FirebaseAuth.instance.currentUser?.uid;
+              CollectionReference subCollection = FirebaseFirestore.instance.collection('users').doc(element).collection('income');
+              await subCollection.add({
                 'date': selectedDateTime,
                 'expenseAmount': int.parse(incomeAmountController.text.trim()),
+                'year' : selectedDateTime.year,
+                'month' : selectedDateTime.month,
+                'day' : selectedDateTime.day,
                 'category': selectedCategory,
                 'memo': memoController.text,
-                'uId': FirebaseAuth.instance.currentUser?.uid,
               });
 
               Navigator.pop(context);
