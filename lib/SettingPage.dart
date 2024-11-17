@@ -82,9 +82,10 @@ class _SettingPageState extends State<SettingPage> {
                           ),
                         );
 
-                        if (result == true) {
-                          await loadUserData();
-                          setState(() {});
+                        if (result != null && result['updateprofile'] == true) {
+                          setState(() {
+                            profileImageUrl = result['profileImageUrl'];
+                          });
                         }
                       },
                       child: Text(
