@@ -84,6 +84,7 @@ class _SettingPageState extends State<SettingPage> {
 
                         if (result == true) {
                           await loadUserData();
+                          setState(() {});
                         }
                       },
                       child: Text(
