@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../firebase_options.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -80,7 +81,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Future<void> updateProfile() async {
     final userNewNickname = newNicknameController.text.trim();
-
     if (profileImage != null) {
       final storageRef = FirebaseStorage.instance.ref().child("profileImage/${user?.uid}.jpg");
       await storageRef.putFile(profileImage!);//저장
@@ -265,8 +265,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 backgroundColor: Colors.grey[700],
                 minimumSize: Size(150, 50),
               ),
-              onPressed: () {
-                updateProfile();
+              onPressed: () async { //변경 부분
+                await updateProfile(); //변경 부분
+                Navigator.pop(context, true); //변경 부분
                 print("프로필이 변경되었습니다.");
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('프로필이 변경되었습니다.')),
