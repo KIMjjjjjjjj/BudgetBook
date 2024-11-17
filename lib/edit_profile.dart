@@ -267,7 +267,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
               ),
               onPressed: () async { //변경 부분
                 await updateProfile(); //변경 부분
-                Navigator.pop(context, true); //변경 부분
+                Navigator.pop(context, {'updateprofile': true, 'profileImageUrl': profileImageUrl}); //변경 부분
                 print("프로필이 변경되었습니다.");
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text('프로필이 변경되었습니다.')),
