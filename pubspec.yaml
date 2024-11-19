@@ -41,6 +41,10 @@ dependencies:
   cloud_firestore: ^5.4.5
   image_picker: ^1.1.2
   image_cropper: ^8.0.2
+  collection:
+  intl:
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
