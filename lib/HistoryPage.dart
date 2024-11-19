@@ -68,8 +68,8 @@ class _HistoryPageState extends State<HistoryPage> {
           .collection('users')
           .doc(user!.uid)
           .collection('expense')
-          // .where('year', isEqualTo: selectedYear)
-          // .where('month', isEqualTo: selectedMonth)
+          .where('year', isEqualTo: selectedYear)
+          .where('month', isEqualTo: selectedMonth)
           .orderBy('date', descending: true)
           .get();
 
@@ -130,14 +130,11 @@ class _HistoryPageState extends State<HistoryPage> {
                       child: Text(year.toString()),
                     ))
                     .toList(),
-                onChanged: (year) {
+                onChanged: (year) async {
                   setState(() {
                     selectedYear = year!;
                   });
-                  // final filteredData = await loadExpenseData(selectedYear!, selectedMonth);
-                  // setState(() {
-                  //   expenses = filteredData;
-                  // });
+                  await loadExpenseData();
                 },
               ),
               SizedBox(width: 10),
@@ -149,14 +146,11 @@ class _HistoryPageState extends State<HistoryPage> {
                       child: Text(month.toString()),
                     ))
                     .toList(),
-                onChanged: (month) {
+                onChanged: (month) async {
                   setState(() {
                     selectedMonth = month!;
                   });
-                  // final filteredData = await loadExpenseData(selectedYear, selectedMonth!);
-                  // setState(() {
-                  //   expenses = filteredData;
-                  // });
+                  await loadExpenseData();
                 },
               ),
             ],
