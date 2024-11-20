@@ -107,15 +107,18 @@ class _HistoryPageState extends State<HistoryPage> {
 
   int totalAmountForTheDay(int targetDay, List<Map<String, dynamic>> expenses) {
     Map<String, List<Map<String, dynamic>>> groupedExpenses = groupExpensesByDay(expenses);
-    List<Map<String, dynamic>>? transactions = groupedExpenses['targetDay'];
+    List<Map<String, dynamic>>? transactions = groupedExpenses[targetDay.toString()];
 
     if (transactions == null || transactions.isEmpty) {
       return 0;
     }
 
-    return transactions.fold(
-      0, (total, transaction) => total + (transaction['amount'] as int? ?? 0),
-    );
+    int totalAmount = 0;
+    for (var transaction in transactions) {
+      totalAmount += transaction['expenseAmount'] as int? ?? 0;
+    }
+
+    return totalAmount;
   }
 
   String _getDayOfWeek(Timestamp timestamp) {
@@ -200,7 +203,7 @@ class _HistoryPageState extends State<HistoryPage> {
                     return _buildDateSection(
                       '$day일',
                       _getDayOfWeek(dayExpenses.first['date'] as Timestamp),
-                      '${totalAmountForTheDay(int.tryParse(day.toString()) ?? 0, dayExpenses).toString()}원',
+                      '${totalAmountForTheDay(int.parse(day), dayExpenses).toString()}원',
 
                       dayExpenses.map((expense) {
                         return _buildTransactionItem(
