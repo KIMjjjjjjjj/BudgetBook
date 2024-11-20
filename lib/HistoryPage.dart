@@ -229,7 +229,6 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
-  // Helper method to build header items
   Widget _buildHeaderItem(String title, String amount, Color color) {
     return Column(
       children: [
