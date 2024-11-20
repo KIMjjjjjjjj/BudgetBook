@@ -4,21 +4,7 @@ import 'firebase_options.dart';
 import 'findPassword.dart';
 import 'findID.dart';
 import 'loginPage.dart';
-
-
-class StartPage extends StatelessWidget{
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('시작화면')),
-      body: Center(
-        child: ElevatedButton(
-            child: Text("취소"),
-            onPressed: () => Navigator.pop(context)),
-      ),
-    );
-  }
-}
+import 'chartDay.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -29,9 +15,9 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           '/' : (context) => LoginPage(),
-          '/main' : (context) => StartPage(),
           '/findID' : (context) => FindIDPage(),
-          '/findPassword' : (context) =>FindPasswordPage(),
+          '/findPassword' : (context) => FindPasswordPage(),
+          '/chartDay' : (context) => ChartDayPage(),
         },
     );
   }

@@ -99,7 +99,7 @@ class LoginPageState extends State<LoginPage>{
       );
       idController.clear();
       passwordController.clear();
-      Navigator.pushNamed(context, '/main');
+      Navigator.pushNamed(context, '/chartDay');
     } catch(e){
       setState(() {
         if (e is FirebaseAuthException) {
