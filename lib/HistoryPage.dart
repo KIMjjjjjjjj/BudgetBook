@@ -55,7 +55,7 @@ class _HistoryPageState extends State<HistoryPage> {
   int? year;
   int? expenseAmount;
   List<Map<String, dynamic>> expenses = [];
-  Map<String, bool> _isExpanded = {};
+  Map<String, bool> isExpanded = {};
 
 
   void initState() {
@@ -92,8 +92,7 @@ class _HistoryPageState extends State<HistoryPage> {
     }
   }
 
-  Map<String, List<Map<String, dynamic>>> groupExpensesByDay(
-      List<Map<String, dynamic>> expenses) {
+  Map<String, List<Map<String, dynamic>>> groupExpensesByDay(List<Map<String, dynamic>> expenses) {
     Map<String, List<Map<String, dynamic>>> groupedExpenses = {};
     for (var expense in expenses) {
       String day = expense['day']?.toString() ?? '';
@@ -104,6 +103,19 @@ class _HistoryPageState extends State<HistoryPage> {
       }
     }
     return groupedExpenses;
+  }
+
+  int totalAmountForTheDay(int targetDay, List<Map<String, dynamic>> expenses) {
+    Map<String, List<Map<String, dynamic>>> groupedExpenses = groupExpensesByDay(expenses);
+    List<Map<String, dynamic>>? transactions = groupedExpenses['targetDay'];
+
+    if (transactions == null || transactions.isEmpty) {
+      return 0;
+    }
+
+    return transactions.fold(
+      0, (total, transaction) => total + (transaction['amount'] as int? ?? 0),
+    );
   }
 
   String _getDayOfWeek(Timestamp timestamp) {
@@ -188,6 +200,8 @@ class _HistoryPageState extends State<HistoryPage> {
                     return _buildDateSection(
                       '$day일',
                       _getDayOfWeek(dayExpenses.first['date'] as Timestamp),
+                      '${totalAmountForTheDay(int.tryParse(day.toString()) ?? 0, dayExpenses).toString()}원',
+
                       dayExpenses.map((expense) {
                         return _buildTransactionItem(
                           expense['category'] ?? '',
@@ -222,13 +236,9 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
-  Widget _buildDateSection(String day, String weekday, List<Widget> expenses) {
+  Widget _buildDateSection(String day, String weekday, String totalAmount, List<Widget> expenses) {
     Color weekdayBackgroundColor;
-    int totalExpenseAmount(List<Map<String, dynamic>> expensesForTheDay) {
-      return expensesForTheDay.fold(0, (sum, item) {
-        return sum + (item['expenseAmount']as int? ?? 0); // Null 처리 포함
-      });
-    }
+
     switch (weekday) {
       case "Sunday":
         weekdayBackgroundColor = Colors.red[300]!;
@@ -246,7 +256,7 @@ class _HistoryPageState extends State<HistoryPage> {
         GestureDetector(
           onTap: () {
             setState(() {
-              _isExpanded[day] = !(_isExpanded[day] ?? false);
+              isExpanded[day] = !(isExpanded[day] ?? false);
             });
           },
           child: Container(
@@ -285,7 +295,7 @@ class _HistoryPageState extends State<HistoryPage> {
                   ],
                 ),
                 Text(
-                  '${totalExpenseAmount.toString()}원', // 총합
+                  totalAmount,
                   style: TextStyle(
                     fontSize: 13,
                     color: Colors.black,
@@ -296,7 +306,7 @@ class _HistoryPageState extends State<HistoryPage> {
             ),
           ),
         ),
-        if (_isExpanded[day] ?? true)
+        if (isExpanded[day] ?? true)
           ListView(
             shrinkWrap: true,
             children: expenses,
