@@ -13,8 +13,14 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class SharingSettingsPage extends StatefulWidget {
+  @override
+  SharingSettingsPageState createState() => SharingSettingsPageState();
+}
 
-class SharingSettingsPage extends StatelessWidget {
+class SharingSettingsPageState extends State<SharingSettingsPage> {
+  List<String> items = ['hansung1', 'hansung2', 'hansung3'];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,6 +99,33 @@ class SharingSettingsPage extends StatelessWidget {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               onTap: () {},
+            ),
+            Divider(),
+            SizedBox(
+              height: 300,
+              child: ListView.builder(
+                itemCount: items.length,
+                itemBuilder: (context, index) {
+                  return Column(
+                    children: [
+                      ListTile(
+                        tileColor: Colors.white,
+                        visualDensity: VisualDensity(horizontal: 0, vertical: -4),
+                        title: Text(items[index]),
+                        trailing: IconButton(
+                          icon: Icon(Icons.remove),
+                          onPressed: () {
+                            setState(() {
+                              items.removeAt(index);
+                            });
+                          },
+                        ),
+                      ),
+                      SizedBox(height: 7),
+                    ],
+                  );
+                }
+              )
             ),
             Divider(),
           ],
