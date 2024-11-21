@@ -7,6 +7,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
 import 'firebase_options.dart';
+import 'income.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,6 +55,10 @@ class _HistoryPageState extends State<HistoryPage> {
   int? month;
   int? year;
   int? amount;
+  int? expense;
+  int? income;
+  int? total;
+  var f = NumberFormat('###,###,###,###');
   List<Map<String, dynamic>> transactions = [];
   Map<String, bool> isExpanded = {};
 
@@ -61,7 +66,9 @@ class _HistoryPageState extends State<HistoryPage> {
   void initState() {
     super.initState();
     loadTransactionsData();
+    totaldata();
   }
+
   Future<void> loadTransactionsData() async {
     if (user != null) {
       QuerySnapshot<Map<String, dynamic>> expenseDocs = await FirebaseFirestore.instance
@@ -121,6 +128,38 @@ class _HistoryPageState extends State<HistoryPage> {
         transactions = loadedTransactions;
       });
     }
+  }
+
+  Future<void> totaldata() async {       //추가
+    int? totalExpense = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.uid)
+        .collection('expense')
+        .where('year', isEqualTo: selectedYear)
+        .where('month', isEqualTo: selectedMonth)
+        .aggregate(sum('expenseAmount'))
+        .get()
+        .then((AggregateQuerySnapshot aggregateSnapshot) {
+      return aggregateSnapshot.getSum('expenseAmount')?.toInt();
+    });
+
+    int? totalIncome = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.uid)
+        .collection('income')
+        .where('year', isEqualTo: selectedYear)
+        .where('month', isEqualTo: selectedMonth)
+        .aggregate(sum('incomeAmount'))
+        .get()
+        .then((AggregateQuerySnapshot aggregateSnapshot) {
+      return aggregateSnapshot.getSum('incomeAmount')?.toInt();
+    });
+
+    setState(() {
+      expense = totalExpense;
+      income = totalIncome;
+      total = totalIncome! - totalExpense!;
+    });
   }
 
   Map<String, List<Map<String, dynamic>>> groupTransactionsByDay(List<Map<String, dynamic>> transactions) {
@@ -183,6 +222,7 @@ class _HistoryPageState extends State<HistoryPage> {
                     selectedYear = year!;
                   });
                   await loadTransactionsData();
+                  await totaldata();
                 },
               ),
               SizedBox(width: 10),
@@ -199,6 +239,7 @@ class _HistoryPageState extends State<HistoryPage> {
                     selectedMonth = month!;
                   });
                   await loadTransactionsData();
+                  await totaldata();
                 },
               ),
             ],
@@ -214,9 +255,9 @@ class _HistoryPageState extends State<HistoryPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildHeaderItem("수입", "000,000", Colors.blue),
-                    _buildHeaderItem("지출", "000,000", Colors.red),
-                    _buildHeaderItem("합계", "000,000", Colors.black),
+                    _buildHeaderItem("수입", income != null ? f.format(income).toString() : "로딩 중", Colors.blue),
+                    _buildHeaderItem("지출", expense != null ? f.format(expense).toString() : "로딩 중", Colors.red),
+                    _buildHeaderItem("합계", total != null ? f.format(total).toString() : "로딩 중", Colors.black),
                   ],
                 ),
               ),
@@ -255,7 +296,12 @@ class _HistoryPageState extends State<HistoryPage> {
         //navigationBar
       floatingActionButton: FloatingActionButton(
         backgroundColor: Color(0xFFB1C3D1),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => InputPage()),
+          );
+        },
         child: Icon(Icons.add),
       ),
     );
