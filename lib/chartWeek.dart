@@ -3,16 +3,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 
-class ChartDayPage extends StatefulWidget{
+class ChartWeekPage extends StatefulWidget{
   final DateTime? selectedDate;
 
-  ChartDayPage({Key? key, this.selectedDate}) : super(key: key);
+  ChartWeekPage({Key? key, this.selectedDate}) : super(key: key);
 
   @override
-  ChartDayState createState() => ChartDayState();
+  ChartWeekState createState() => ChartWeekState();
 }
 
-class ChartDayState extends State<ChartDayPage>{
+class ChartWeekState extends State<ChartWeekPage>{
   DateTime? selectedDate;
   List<PieChartSectionData> sections = [];
   String? userId;
@@ -45,9 +45,8 @@ class ChartDayState extends State<ChartDayPage>{
   Future<void> dataOfIncome() async {
     if (selectedDate == null || userId == null) return;
 
-    int year = selectedDate!.year;
-    int month = selectedDate!.month;
-    int day = selectedDate!.day;
+    DateTime startDate = selectedDate!.subtract(Duration(days: 7));
+    DateTime endDate = DateTime(selectedDate!.year, selectedDate!.month, selectedDate!.day, 23, 59, 59);
 
     double totalIncomeAmount = 0.0;
 
@@ -55,9 +54,8 @@ class ChartDayState extends State<ChartDayPage>{
         .collection('users')
         .doc(userId) // 사용자 ID로 문서 지정
         .collection('income')
-        .where('year', isEqualTo: year)
-        .where('month', isEqualTo: month)
-        .where('day', isEqualTo: day)
+        .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
+        .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endDate))
         .get();
 
     for (var doc in snapshot.docs) {
@@ -84,13 +82,12 @@ class ChartDayState extends State<ChartDayPage>{
     Colors.indigo,];
 
   Map<String, Color> categoryColorMap = {}; // 카테고리별 색상 저장
-
+  int colorIndex = 0;
   Future<void> dataOfExpense() async {
     if (selectedDate == null || userId == null) return;
 
-    int year = selectedDate!.year;
-    int month = selectedDate!.month;
-    int day = selectedDate!.day;
+    DateTime startDate = selectedDate!.subtract(Duration(days: 7));
+    DateTime endDate = DateTime(selectedDate!.year, selectedDate!.month, selectedDate!.day, 23, 59, 59);
 
     expenseData.clear();
     double totalExpenseAmount = 0.0;
@@ -100,9 +97,8 @@ class ChartDayState extends State<ChartDayPage>{
         .collection('users')
         .doc(userId) // 사용자 ID로 문서 지정
         .collection('expense')
-        .where('year', isEqualTo: year)
-        .where('month', isEqualTo: month)
-        .where('day', isEqualTo: day)
+        .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
+        .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endDate))
         .get();
 
     for (var doc in snapshot.docs) {
@@ -123,13 +119,13 @@ class ChartDayState extends State<ChartDayPage>{
     setState(() {
       this.totalExpenseAmount = totalExpenseAmount;
 
-      int colorIndex = 0;
+
 
       if(expenseData.isEmpty || totalExpenseAmount == 0){
         sections = [PieChartSectionData(color: Colors.grey, // 빈 데이터에 대한 색상
-                    value: 1, // 최소값 설정
-                    title: '데이터 없음', // 제목
-                    radius: 110,),];
+          value: 1, // 최소값 설정
+          title: '데이터 없음', // 제목
+          radius: 110,),];
       } else {
         sections = expenseData.entries.map((entry) {
           // 카테고리별 색상 맵에 색상 추가
@@ -151,10 +147,10 @@ class ChartDayState extends State<ChartDayPage>{
     });
   }
 
-  void _onButtonPressed(String period) {
+  void _onButtonPressed(String period){
     if(period == '오늘'){
       Navigator.pushNamed(context, '/chartToday', arguments: selectedDate);
-    }else if(period == '일간'){
+    } else if(period == '일간'){
       Navigator.pushNamed(context, '/chartDay', arguments: selectedDate);
     } else if(period == '주간') {
       Navigator.pushNamed(context, '/chartWeek', arguments: selectedDate);
@@ -321,7 +317,7 @@ class ChartDayState extends State<ChartDayPage>{
             ),
           ),
           Container(
-            height: 300,
+            height: 300, // 높이 250 설정
             padding: const EdgeInsets.all(0.0),
             color: Colors.indigo,
             child: Column(
@@ -420,7 +416,7 @@ class ChartDayState extends State<ChartDayPage>{
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  padding: const EdgeInsets.symmetric(vertical: 0.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [

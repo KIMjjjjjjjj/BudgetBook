@@ -5,6 +5,9 @@ import 'findPassword.dart';
 import 'findID.dart';
 import 'loginPage.dart';
 import 'chartDay.dart';
+import 'chartWeek.dart';
+import 'chartMonth.dart';
+import 'chartToday.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -17,7 +20,10 @@ class MyApp extends StatelessWidget {
           '/' : (context) => LoginPage(),
           '/findID' : (context) => FindIDPage(),
           '/findPassword' : (context) => FindPasswordPage(),
-          '/chartDay' : (context) => ChartDayPage(),
+          '/chartDay': (context) => ChartDayPage(selectedDate: ModalRoute.of(context)!.settings.arguments as DateTime?),
+          '/chartWeek': (context) => ChartWeekPage(selectedDate: ModalRoute.of(context)!.settings.arguments as DateTime?),
+          '/chartMonth': (context) => ChartMonthPage(selectedDate: ModalRoute.of(context)!.settings.arguments as DateTime?),
+          '/chartToday' : (context) => ChartTodayPage(),
         },
     );
   }

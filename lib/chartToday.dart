@@ -3,16 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 
-class ChartDayPage extends StatefulWidget{
-  final DateTime? selectedDate;
-
-  ChartDayPage({Key? key, this.selectedDate}) : super(key: key);
-
+class ChartTodayPage extends StatefulWidget{
   @override
-  ChartDayState createState() => ChartDayState();
+  ChartTodayState createState() => ChartTodayState();
 }
 
-class ChartDayState extends State<ChartDayPage>{
+class ChartTodayState extends State<ChartTodayPage>{
   DateTime? selectedDate;
   List<PieChartSectionData> sections = [];
   String? userId;
@@ -26,7 +22,7 @@ class ChartDayState extends State<ChartDayPage>{
   @override
   void initState() {
     super.initState();
-    selectedDate = widget.selectedDate;
+    selectedDate = DateTime.now();
     FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user == null) {
         setState(() {
@@ -127,9 +123,9 @@ class ChartDayState extends State<ChartDayPage>{
 
       if(expenseData.isEmpty || totalExpenseAmount == 0){
         sections = [PieChartSectionData(color: Colors.grey, // 빈 데이터에 대한 색상
-                    value: 1, // 최소값 설정
-                    title: '데이터 없음', // 제목
-                    radius: 110,),];
+          value: 1, // 최소값 설정
+          title: '데이터 없음', // 제목
+          radius: 110,),];
       } else {
         sections = expenseData.entries.map((entry) {
           // 카테고리별 색상 맵에 색상 추가
@@ -151,10 +147,10 @@ class ChartDayState extends State<ChartDayPage>{
     });
   }
 
-  void _onButtonPressed(String period) {
+  void _onButtonPressed(String period){
     if(period == '오늘'){
       Navigator.pushNamed(context, '/chartToday', arguments: selectedDate);
-    }else if(period == '일간'){
+    } else if(period == '일간'){
       Navigator.pushNamed(context, '/chartDay', arguments: selectedDate);
     } else if(period == '주간') {
       Navigator.pushNamed(context, '/chartWeek', arguments: selectedDate);
@@ -215,7 +211,7 @@ class ChartDayState extends State<ChartDayPage>{
       children: [
         IconButton(
           icon: Icon(Icons.calendar_today),
-          onPressed: selectDate,
+          onPressed: null,
           color: Colors.black, // 아이콘 색상
         ),
         SizedBox(width: 10),

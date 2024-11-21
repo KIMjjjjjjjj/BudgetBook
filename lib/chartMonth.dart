@@ -3,16 +3,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 
-class ChartDayPage extends StatefulWidget{
+class ChartMonthPage extends StatefulWidget{
   final DateTime? selectedDate;
 
-  ChartDayPage({Key? key, this.selectedDate}) : super(key: key);
+  ChartMonthPage({Key? key, this.selectedDate}) : super(key: key);
 
   @override
-  ChartDayState createState() => ChartDayState();
+  ChartMonthState createState() => ChartMonthState();
 }
 
-class ChartDayState extends State<ChartDayPage>{
+class ChartMonthState extends State<ChartMonthPage>{
   DateTime? selectedDate;
   List<PieChartSectionData> sections = [];
   String? userId;
@@ -57,7 +57,6 @@ class ChartDayState extends State<ChartDayPage>{
         .collection('income')
         .where('year', isEqualTo: year)
         .where('month', isEqualTo: month)
-        .where('day', isEqualTo: day)
         .get();
 
     for (var doc in snapshot.docs) {
@@ -102,7 +101,6 @@ class ChartDayState extends State<ChartDayPage>{
         .collection('expense')
         .where('year', isEqualTo: year)
         .where('month', isEqualTo: month)
-        .where('day', isEqualTo: day)
         .get();
 
     for (var doc in snapshot.docs) {
@@ -127,9 +125,9 @@ class ChartDayState extends State<ChartDayPage>{
 
       if(expenseData.isEmpty || totalExpenseAmount == 0){
         sections = [PieChartSectionData(color: Colors.grey, // 빈 데이터에 대한 색상
-                    value: 1, // 최소값 설정
-                    title: '데이터 없음', // 제목
-                    radius: 110,),];
+          value: 1, // 최소값 설정
+          title: '데이터 없음', // 제목
+          radius: 110,),];
       } else {
         sections = expenseData.entries.map((entry) {
           // 카테고리별 색상 맵에 색상 추가
@@ -151,10 +149,10 @@ class ChartDayState extends State<ChartDayPage>{
     });
   }
 
-  void _onButtonPressed(String period) {
+  void _onButtonPressed(String period){
     if(period == '오늘'){
       Navigator.pushNamed(context, '/chartToday', arguments: selectedDate);
-    }else if(period == '일간'){
+    } else if(period == '일간'){
       Navigator.pushNamed(context, '/chartDay', arguments: selectedDate);
     } else if(period == '주간') {
       Navigator.pushNamed(context, '/chartWeek', arguments: selectedDate);
@@ -321,7 +319,7 @@ class ChartDayState extends State<ChartDayPage>{
             ),
           ),
           Container(
-            height: 300,
+            height: 300, // 높이 250 설정
             padding: const EdgeInsets.all(0.0),
             color: Colors.indigo,
             child: Column(
@@ -335,7 +333,7 @@ class ChartDayState extends State<ChartDayPage>{
                         padding: const EdgeInsets.symmetric(vertical: 12.0), // 위아래 여백 추가
                         child: Text(
                           '카테고리',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -345,7 +343,7 @@ class ChartDayState extends State<ChartDayPage>{
                         padding: const EdgeInsets.symmetric(vertical: 12.0), // 위아래 여백 추가
                         child: Text(
                           '퍼센트',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -355,7 +353,7 @@ class ChartDayState extends State<ChartDayPage>{
                         padding: const EdgeInsets.symmetric(vertical: 12.0), // 위아래 여백 추가
                         child: Text(
                           '금액',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -437,8 +435,8 @@ class ChartDayState extends State<ChartDayPage>{
                       SizedBox(width: 40),
                       Expanded(
                         child: Text(
-                            '${totalPercentage.toStringAsFixed(1)}%',
-                            textAlign: TextAlign.end,
+                          '${totalPercentage.toStringAsFixed(1)}%',
+                          textAlign: TextAlign.end,
                             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold )// 퍼센트 정렬
                         ),
                       ),
