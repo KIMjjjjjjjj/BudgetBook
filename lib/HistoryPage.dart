@@ -53,16 +53,16 @@ class _HistoryPageState extends State<HistoryPage> {
   int? day;
   int? month;
   int? year;
-  int? expenseAmount;
-  List<Map<String, dynamic>> expenses = [];
+  int? amount;
+  List<Map<String, dynamic>> transactions = [];
   Map<String, bool> isExpanded = {};
 
 
   void initState() {
     super.initState();
-    loadExpenseData();
+    loadTransactionsData();
   }
-  Future<void> loadExpenseData() async {
+  Future<void> loadTransactionsData() async {
     if (user != null) {
       QuerySnapshot<Map<String, dynamic>> expenseDocs = await FirebaseFirestore.instance
           .collection('users')
@@ -73,48 +73,83 @@ class _HistoryPageState extends State<HistoryPage> {
           .orderBy('date', descending: true)
           .get();
 
-      if (expenseDocs.docs.isNotEmpty) {
-        setState(() {
-          expenses = expenseDocs.docs.map((doc) {
-            final data = doc.data();
-            return {
-              'date': data['date'],
-              'day': data['day'] ?? 0,
-              'month': data['month'] ?? 0,
-              'year': data['year'] ?? 0,
-              'category': data['category'] ?? '',
-              'memo': data['memo'] ?? '',
-              'expenseAmount': data['expenseAmount'] ?? 0,
-            };
-          }).toList();
-        });
-      }
+      QuerySnapshot<Map<String, dynamic>> incomeDocs = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user!.uid)
+          .collection('income')
+          .where('year', isEqualTo: selectedYear)
+          .where('month', isEqualTo: selectedMonth)
+          .orderBy('date', descending: true)
+          .get();
+
+      List<Map<String, dynamic>> loadedTransactions = [
+        ...expenseDocs.docs.map((doc) {
+          final data = doc.data();
+          return {
+            'date': data['date'],
+            'day': data['day'] ?? 0,
+            'month': data['month'] ?? 0,
+            'year': data['year'] ?? 0,
+            'category': data['category'] ?? '',
+            'memo': data['memo'] ?? '',
+            'amount': data['expenseAmount'] ?? 0,
+            'type': 'expense',
+          };
+        }).toList(),
+        ...incomeDocs.docs.map((doc) {
+         final data = doc.data();
+          return {
+            'date': data['date'],
+            'day': data['day'] ?? 0,
+            'month': data['month'] ?? 0,
+            'year': data['year'] ?? 0,
+            'category': data['category'] ?? '',
+            'memo': data['memo'] ?? '',
+            'amount': data['incomeAmount'] ?? 0,
+            'type': 'income',
+          };
+        }).toList(),
+      ];
+
+      loadedTransactions.sort((a,b) {
+        Timestamp dateA = a['date'] as Timestamp;
+        Timestamp dateB = b['date'] as Timestamp;
+        return dateB.compareTo(dateA);
+      });
+
+      setState(() {
+        transactions = loadedTransactions;
+      });
     }
   }
 
-  Map<String, List<Map<String, dynamic>>> groupExpensesByDay(List<Map<String, dynamic>> expenses) {
-    Map<String, List<Map<String, dynamic>>> groupedExpenses = {};
-    for (var expense in expenses) {
-      String day = expense['day']?.toString() ?? '';
-      if (groupedExpenses.containsKey(day)) {
-        groupedExpenses[day]!.add(expense);
+  Map<String, List<Map<String, dynamic>>> groupTransactionsByDay(List<Map<String, dynamic>> transactions) {
+    Map<String, List<Map<String, dynamic>>> groupedTransactions = {};
+    for (var transaction in transactions) {
+      String day = transaction['day']?.toString() ?? '';
+      if (groupedTransactions.containsKey(day)) {
+        groupedTransactions[day]!.add(transaction);
       } else {
-        groupedExpenses[day] = [expense];
+        groupedTransactions[day] = [transaction];
       }
     }
-    return groupedExpenses;
+    return groupedTransactions;
   }
 
-  int totalAmountForTheDay(int targetDay, List<Map<String, dynamic>> expenses) {
-    Map<String, List<Map<String, dynamic>>> groupedExpenses = groupExpensesByDay(expenses);
-    List<Map<String, dynamic>>? transactions = groupedExpenses[targetDay.toString()];
+  int totalAmountForTheDay(int targetDay, List<Map<String, dynamic>> transactions) {
+    Map<String, List<Map<String, dynamic>>> groupedExpenses = groupTransactionsByDay(transactions);
+    List<Map<String, dynamic>>? dayTransactions  = groupedExpenses[targetDay.toString()];
 
-    if (transactions == null || transactions.isEmpty) {
+    if (dayTransactions  == null || dayTransactions .isEmpty) {
       return 0;
     }
     int totalAmount = 0;
-    for (var transaction in transactions) {
-      totalAmount += transaction['expenseAmount'] as int? ?? 0;
+    for (var transaction in dayTransactions ) {
+      if(transaction['type'] == 'expense') {
+        totalAmount -= transaction['amount'] as int? ?? 0;
+      } else if(transaction['type'] == 'income') {
+        totalAmount += transaction['amount'] as int? ?? 0;
+      }
     }
     return totalAmount;
   }
@@ -147,7 +182,7 @@ class _HistoryPageState extends State<HistoryPage> {
                   setState(() {
                     selectedYear = year!;
                   });
-                  await loadExpenseData();
+                  await loadTransactionsData();
                 },
               ),
               SizedBox(width: 10),
@@ -163,7 +198,7 @@ class _HistoryPageState extends State<HistoryPage> {
                   setState(() {
                     selectedMonth = month!;
                   });
-                  await loadExpenseData();
+                  await loadTransactionsData();
                 },
               ),
             ],
@@ -186,7 +221,7 @@ class _HistoryPageState extends State<HistoryPage> {
                 ),
               ),
               Expanded(
-                child: expenses.isEmpty
+                child: transactions.isEmpty
                   ? Center(
                     child: Text(
                       "No expense found.",
@@ -194,20 +229,20 @@ class _HistoryPageState extends State<HistoryPage> {
                     ),
                   )
                  : ListView(
-                  children: groupExpensesByDay(expenses).entries.map((entry) {
+                  children: groupTransactionsByDay(transactions).entries.map((entry) {
                     String day = entry.key;
-                    List<Map<String, dynamic>> dayExpenses = entry.value;
+                    List<Map<String, dynamic>> dayTransactions = entry.value;
 
                     return _buildDateSection(
                       '$day일',
-                      _getDayOfWeek(dayExpenses.first['date'] as Timestamp),
-                      '${totalAmountForTheDay(int.parse(day), dayExpenses).toString()}원',
-                      dayExpenses.map((expense) {
+                      _getDayOfWeek(dayTransactions.first['date'] as Timestamp),
+                      '${totalAmountForTheDay(int.parse(day), dayTransactions).toString()}원',
+                      dayTransactions.map((transaction) {
                         return _buildTransactionItem(
-                          expense['category'] ?? '',
-                          expense['memo'] ?? '',
-                          '${expense['expenseAmount']?.toString() ?? '0'}원',
-                          isExpense: (expense['expenseAmount'] ?? 0) > 0,
+                          transaction['category'] ?? '',
+                          transaction['memo'] ?? '',
+                          '${transaction['amount']?.toString() ?? '0'}원',
+                          isExpense: transaction['type']  == 'expense',
                         );
                       }).toList(),
                     );
@@ -229,8 +264,8 @@ class _HistoryPageState extends State<HistoryPage> {
   Widget _buildHeaderItem(String title, String amount, Color color) {
     return Column(
       children: [
-        Text(title, style: TextStyle(fontSize: 13)),
-        Text(amount, style: TextStyle(fontSize: 14, color: color)),
+        Text(title, style: TextStyle(fontSize: 14)),
+        Text(amount, style: TextStyle(fontSize: 15, color: color)),
       ],
     );
   }
@@ -270,7 +305,7 @@ class _HistoryPageState extends State<HistoryPage> {
                     Text(
                       day,
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 15,
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
                       ),
@@ -296,7 +331,7 @@ class _HistoryPageState extends State<HistoryPage> {
                 Text(
                   totalAmount,
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 14,
                     color: Colors.black,
                   ),
                 ),
@@ -328,7 +363,7 @@ class _HistoryPageState extends State<HistoryPage> {
             flex: 2,
             child: Text(
               category,
-              style: TextStyle(fontSize: 12.0),
+              style: TextStyle(fontSize: 13.0),
               textAlign: TextAlign.left,
             ),
           ),
@@ -336,7 +371,7 @@ class _HistoryPageState extends State<HistoryPage> {
             flex: 3,
             child: Text(
               memo ?? '메모 없음',
-              style: TextStyle(fontSize: 12.0),
+              style: TextStyle(fontSize: 13.0),
               textAlign: TextAlign.left,
             ),
           ),
@@ -345,7 +380,7 @@ class _HistoryPageState extends State<HistoryPage> {
             child: Text(
               amount,
               style: TextStyle(
-                fontSize: 12.0,
+                fontSize: 14.0,
                 color: isExpense ? Colors.red : Colors.blue,
               ),
               textAlign: TextAlign.right,
