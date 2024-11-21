@@ -112,12 +112,10 @@ class _HistoryPageState extends State<HistoryPage> {
     if (transactions == null || transactions.isEmpty) {
       return 0;
     }
-
     int totalAmount = 0;
     for (var transaction in transactions) {
       totalAmount += transaction['expenseAmount'] as int? ?? 0;
     }
-
     return totalAmount;
   }
 
@@ -204,7 +202,6 @@ class _HistoryPageState extends State<HistoryPage> {
                       '$day일',
                       _getDayOfWeek(dayExpenses.first['date'] as Timestamp),
                       '${totalAmountForTheDay(int.parse(day), dayExpenses).toString()}원',
-
                       dayExpenses.map((expense) {
                         return _buildTransactionItem(
                           expense['category'] ?? '',
@@ -301,7 +298,6 @@ class _HistoryPageState extends State<HistoryPage> {
                   style: TextStyle(
                     fontSize: 13,
                     color: Colors.black,
-                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ],
