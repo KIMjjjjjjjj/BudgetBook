@@ -447,7 +447,7 @@ class ChartDayState extends State<ChartDayPage>{
                         child: Text(
                           '${totalExpenseAmount.toInt()}원',
                           textAlign: TextAlign.end,
-                          style: TextStyle(color: Colors.red), // 금액 정렬
+                          style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold), // 금액 정렬
                         ),
                       ),
                       SizedBox(width: 50),

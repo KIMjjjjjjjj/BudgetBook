@@ -1,13 +1,7 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:mobileproject/account/account.dart';
-import '../account/Change/edit_profile.dart';
-import '../main.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter/material.dart';
 
 
 class InputPage extends StatelessWidget {

@@ -99,7 +99,7 @@ class LoginPageState extends State<LoginPage>{
       );
       idController.clear();
       passwordController.clear();
-      Navigator.pushNamed(context, '/');
+      Navigator.pushNamed(context, '/navigation');
     } catch(e){
       setState(() {
         if (e is FirebaseAuthException) {
@@ -196,7 +196,7 @@ class LoginPageState extends State<LoginPage>{
               "회원가입",
               style: TextStyle(fontSize: 12),
             ),
-            onTap: ()=> Navigator.pushNamed(context, '/findID')
+            onTap: ()=> Navigator.pushNamed(context, '/signUp')
         ),
         SizedBox(width: 200),
         GestureDetector(

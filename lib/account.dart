@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mobileproject/account/Change/change_email.dart';
-import 'package:mobileproject/account/Change/change_password.dart';
-import 'package:mobileproject/account/Change/edit_profile.dart';
-import 'package:mobileproject/account/Change/delete_account.dart';
+import 'change_email.dart';
+import 'change_password.dart';
+import 'delete_account.dart';
 
 class AccountPage extends StatelessWidget {
 
@@ -58,18 +57,6 @@ class AccountPage extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      items: [
-        BottomNavigationBarItem(icon: Icon(Icons.list), label: '내역'),
-        BottomNavigationBarItem(icon: Icon(Icons.show_chart), label: '그래프'),
-        BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet), label: '예산 관리'),
-        BottomNavigationBarItem(icon: Icon(Icons.settings), label: '설정'),
-      ],
-      currentIndex: 3,
-      selectedItemColor: Colors.blue,
-      unselectedItemColor: Colors.grey,
-    ),
     );
   }
 }

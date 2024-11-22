@@ -1,27 +1,25 @@
-import 'package:budget_book/HistoryPage.dart';
-import 'package:budget_book/SettingPage.dart';
-import 'package:budget_book/BudgetPage.dart';
-import 'package:budget_book/GraphPage.dart';
+import 'chartToday.dart';
+import 'HistoryPage.dart';
+import 'SettingPage.dart';
+import 'budget_setting.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter/material.dart' hide NavigationBar;
-import 'package:budget_book/bottomNavigationBar.dart';
 
 
-class NavigationBar extends StatefulWidget {
-  const NavigationBar({super.key});
+class CustomNavigationBar extends StatefulWidget {
+  const CustomNavigationBar({super.key});
 
   @override
-  State<NavigationBar> createState() => NavigationBarState();
+  State<CustomNavigationBar> createState() => NavigationBarState();
 }
 
-class NavigationBarState extends State<NavigationBar> {
+class NavigationBarState extends State<CustomNavigationBar> {
   var _index = 0;
 
   List<Widget> _pages = [
     HistoryPage(),
     ChartTodayPage(),
-    BudgetPage(),
+    BudgetSetting(),
     SettingPage(),
   ];
 

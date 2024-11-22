@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server/gmail.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'loginPage.dart';
 
 class ChangeEmailPage extends StatefulWidget {
   @override

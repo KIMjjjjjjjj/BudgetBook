@@ -52,7 +52,7 @@ class _BudgetSettingState extends State<BudgetSetting> {
       }
 
       setState(() {
-        totalSpent = totalIncome - totalExpense;
+        totalSpent = totalExpense;
       });
     }
 
@@ -88,7 +88,7 @@ class _BudgetSettingState extends State<BudgetSetting> {
             SizedBox(height: 10),
             LinearProgressIndicator(
               value: totalSpent < 0 ? 0 : totalSpent / 1000000,
-              color: totalSpent >= 0 ? Colors.green : Colors.red,
+              color: totalSpent >= 0 ? Colors.red : Colors.green,
               backgroundColor: Colors.grey[300],
             ),
             SizedBox(height: 30),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'loginPage.dart';
 
 class ChangePasswordPage extends StatefulWidget {
   @override
@@ -44,10 +45,15 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         errorMessage1 = null;
       });
 
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('비밀번호가 성공적으로 변경되었습니다.')),
       );
-      Navigator.pop(context);
+
     } on FirebaseAuthException catch (e) {
       String errorMessage;
       switch (e.code) {

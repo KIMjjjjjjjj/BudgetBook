@@ -3,7 +3,11 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:mobileproject/account/account.dart';
+import 'edit_profile.dart';
+import 'loginPage.dart';
+import 'account.dart';
+import 'notification_settings.dart';
+import 'share_settings.dart';
 
 class SettingPage extends StatefulWidget {
   @override
@@ -120,7 +124,12 @@ class _SettingPageState extends State<SettingPage> {
                     title: Text('알림 설정'),
                     trailing: Icon(Icons.arrow_forward_ios),
                     tileColor: Colors.grey[100],
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => NotificationSettingsPage()),
+                      );
+                    },
                   ),
                 ),
                 Card(
@@ -128,7 +137,12 @@ class _SettingPageState extends State<SettingPage> {
                     title: Text('공유 설정'),
                     trailing: Icon(Icons.arrow_forward_ios),
                     tileColor: Colors.grey[100],
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SharingSettingsPage()),
+                      );
+                    },
                   ),
                 ),
                 Padding(
@@ -165,18 +179,6 @@ class _SettingPageState extends State<SettingPage> {
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.list), label: '내역'),
-          BottomNavigationBarItem(icon: Icon(Icons.show_chart), label: '그래프'),
-          BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet), label: '예산 관리'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: '설정'),
-        ],
-        currentIndex: 3,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
       ),
     );
   }
