@@ -1,3 +1,4 @@
+import 'package:budget_book/ChartDayPage.dart';
 import 'package:budget_book/HistoryPage.dart';
 import 'package:budget_book/SettingPage.dart';
 import 'package:budget_book/BudgetPage.dart';
@@ -6,6 +7,8 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter/material.dart' hide NavigationBar;
 import 'package:budget_book/bottomNavigationBar.dart';
+
+import 'budget_setting.dart';
 
 
 class NavigationBar extends StatefulWidget {
@@ -20,8 +23,8 @@ class NavigationBarState extends State<NavigationBar> {
 
   List<Widget> _pages = [
     HistoryPage(),
-    GraphPage(),
-    BudgetPage(),
+    ChartDayPage(),
+    BudgetSetting(),
     SettingPage(),
   ];
 
