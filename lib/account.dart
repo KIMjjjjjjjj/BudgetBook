@@ -4,16 +4,6 @@ import 'package:mobileproject/account/Change/change_password.dart';
 import 'package:mobileproject/account/Change/edit_profile.dart';
 import 'package:mobileproject/account/Change/delete_account.dart';
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: AccountPage(),
-    );
-  }
-}
 class AccountPage extends StatelessWidget {
 
   @override

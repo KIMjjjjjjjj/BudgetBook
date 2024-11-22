@@ -24,6 +24,7 @@ class MyApp extends StatelessWidget {
           '/chartWeek': (context) => ChartWeekPage(selectedDate: ModalRoute.of(context)!.settings.arguments as DateTime?),
           '/chartMonth': (context) => ChartMonthPage(selectedDate: ModalRoute.of(context)!.settings.arguments as DateTime?),
           '/chartToday' : (context) => ChartTodayPage(),
+          '/navigation' : (context) => NavigationBar(),
         },
     );
   }

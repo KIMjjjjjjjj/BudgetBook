@@ -4,8 +4,6 @@ import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server/gmail.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../../main.dart';
-
 class ChangeEmailPage extends StatefulWidget {
   @override
   _ChangeEmailPageState createState() => _ChangeEmailPageState();
