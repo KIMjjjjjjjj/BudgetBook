@@ -152,12 +152,12 @@ class signUpPageState extends State<SignUpPage> {
           r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?~^<>,.&+=])[A-Za-z\d$@$!%*#?~^<>,.&+=]{8,}$',
           caseSensitive: true,
           multiLine: false,)
-        .hasMatch (password)
+            .hasMatch (password)
     ) {
-    return false; // 조건 불만족
+      return false; // 조건 불만족
     }
     return
-    true; // 조건 만족
+      true; // 조건 만족
   }
 
   /// 입력값 확인 및 에러 메시지 업데이트 함수
@@ -204,6 +204,7 @@ class signUpPageState extends State<SignUpPage> {
     final id = _idController.text;
     final password = _passwordController.text;
     final email= _emailController.text;
+    final profileImageUrl = null;
 
     if (email.isEmpty || nickname.isEmpty || id.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -213,13 +214,18 @@ class signUpPageState extends State<SignUpPage> {
     }
 
     try {
+      // Firebase Authentication을 통해 사용자 등록
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password.trim(),
+      );
+
       // Firestore에 데이터 저장
-      await _firestore.collection('users').add({
+      await _firestore.collection('register').doc(userCredential.user?.uid).set({
         'email' : email,
         'nickname': nickname,
         'id': id,
-        'password': password,
-        'createdAt': FieldValue.serverTimestamp(), // 서버 타임스탬프 추가
+        'profileImageUrl':profileImageUrl
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
