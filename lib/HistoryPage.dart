@@ -1,42 +1,12 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
-import 'firebase_options.dart';
 import 'income.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  // await initializeDateFormatting('ko_KR', null);
-  // Intl.defaultLocale = 'ko_KR';
-  runApp(const MyApp());
-}
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: HistoryPage(),
-      // localizationsDelegates: const [
-      //   GlobalMaterialLocalizations.delegate,
-      //   GlobalCupertinoLocalizations.delegate,
-      //   GlobalWidgetsLocalizations.delegate,
-      // ],
-      // supportedLocales: const [
-      //   Locale('ko', 'KR')
-      // ],
-      // locale: const Locale('ko'),
-    );
-  }
-}
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({Key? key}) : super(key: key);
@@ -67,6 +37,11 @@ class _HistoryPageState extends State<HistoryPage> {
     super.initState();
     loadTransactionsData();
     totaldata();
+
+    Timer.periodic(Duration(seconds: 1), (timer) async {
+      await totaldata();
+      await loadTransactionsData();
+    });
   }
 
   Future<void> loadTransactionsData() async {
