@@ -6,6 +6,56 @@ class RoomSelectionPage extends StatefulWidget {
 }
 
 class RoomSelectionPageState  extends State<RoomSelectionPage> {
+  List<String> sharedRooms = [];
+  String elements = "";
+
+  StreamSubscription? _subscription;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _subscription = FirebaseFirestore.instance
+        .collection('share')
+        .snapshots()
+        .listen((snapshot) {
+      _checkSharedRoom();
+    });
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
+
+  void _checkSharedRoom() async {
+    final userUid = FirebaseAuth.instance.currentUser?.uid;
+    if (userUid == null) {
+      print("로그인된 사용자가 없습니다.");
+      return;
+    }
+
+    final userDoc = await FirebaseFirestore.instance
+        .collection('register')
+        .doc(userUid)
+        .get();
+
+
+    final ID = userDoc.data()?['id'];
+
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('share')
+        .where('id', arrayContains: ID)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      setState(() {
+        sharedRooms = querySnapshot.docs.map((doc) => doc['방 이름'].toString()).toList();
+      });
+    }
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,17 +76,27 @@ class RoomSelectionPageState  extends State<RoomSelectionPage> {
                     icon: Icons.person,
                     label: '개인방',
                     onPressed: () {
-                      print('개인방');
+                      final userUid = FirebaseAuth.instance.currentUser?.uid;
+                      if (userUid != null) {
+                      elements = userUid;
+                      Navigator.pushNamed(context, '/navigation', arguments: elements);
+                    }
                     },
                   ),
                   SizedBox(width: 20),
-                  buildRoomBox(
-                    icon: Icons.emoji_emotions,
-                    label: '공유방',
-                    onPressed: () {
-                      print('공유방');
-                    },
-                  ),
+                  if (sharedRooms.isNotEmpty)
+                  ...sharedRooms.map((roomName) => Padding(
+                    padding: const EdgeInsets.only(right: 15.0),
+                    child: buildRoomBox(
+                      icon: Icons.emoji_emotions,
+                      label: roomName,
+                      onPressed: () {
+                        elements = roomName;
+                        Navigator.pushNamed(context, '/navigation', arguments: elements);
+                        print('공유방: $roomName');
+                      },
+                    ),
+                  )).toList(),
                 ],
               ),
               SizedBox(height: 30),
@@ -44,7 +104,7 @@ class RoomSelectionPageState  extends State<RoomSelectionPage> {
                 icon: Icons.add,
                 label: '방 추가',
                 onPressed: () {
-                  print('방 추가');
+                  Navigator.pushNamed(context, '/MakeRoom');
                 },
               )
             ],
