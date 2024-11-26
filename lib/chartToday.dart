@@ -4,14 +4,23 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class ChartTodayPage extends StatefulWidget{
+  final String elements;
+  const ChartTodayPage({required this.elements});
+  
   @override
   ChartTodayState createState() => ChartTodayState();
+}
+
+class ChartArguments {
+  final DateTime? selectedDate;
+  final String? elements;
+
+  ChartArguments(this.selectedDate, this.elements);
 }
 
 class ChartTodayState extends State<ChartTodayPage>{
   DateTime? selectedDate;
   List<PieChartSectionData> sections = [];
-  String? userId;
 
   Map<String, double> expenseData = {};
 
@@ -23,23 +32,13 @@ class ChartTodayState extends State<ChartTodayPage>{
   void initState() {
     super.initState();
     selectedDate = DateTime.now();
-    FirebaseAuth.instance.authStateChanges().listen((User? user) {
-      if (user == null) {
-        setState(() {
-          userId = null; // 로그인한 사용자 ID 설정
-        });
-      } else {
-        setState(() {
-          userId = user.uid; // 로그인한 사용자 ID 설정
-        });
-        dataOfExpense(); // 데이터 가져오기
-        dataOfIncome();
-      }
-    });
+
+    dataOfExpense();
+    dataOfIncome();
   }
 
   Future<void> dataOfIncome() async {
-    if (selectedDate == null || userId == null) return;
+    if (selectedDate == null || widget.elements == null) return;
 
     int year = selectedDate!.year;
     int month = selectedDate!.month;
@@ -49,7 +48,7 @@ class ChartTodayState extends State<ChartTodayPage>{
 
     var snapshot = await FirebaseFirestore.instance
         .collection('users')
-        .doc(userId) // 사용자 ID로 문서 지정
+        .doc(widget.elements) // 사용자 ID로 문서 지정
         .collection('income')
         .where('year', isEqualTo: year)
         .where('month', isEqualTo: month)
@@ -82,7 +81,7 @@ class ChartTodayState extends State<ChartTodayPage>{
   Map<String, Color> categoryColorMap = {}; // 카테고리별 색상 저장
 
   Future<void> dataOfExpense() async {
-    if (selectedDate == null || userId == null) return;
+    if (selectedDate == null || widget.elements == null) return;
 
     int year = selectedDate!.year;
     int month = selectedDate!.month;
@@ -94,7 +93,7 @@ class ChartTodayState extends State<ChartTodayPage>{
     // Firestore에서 데이터 가져오기
     var snapshot = await FirebaseFirestore.instance
         .collection('users')
-        .doc(userId) // 사용자 ID로 문서 지정
+        .doc(widget.elements) // 사용자 ID로 문서 지정
         .collection('expense')
         .where('year', isEqualTo: year)
         .where('month', isEqualTo: month)
@@ -147,15 +146,31 @@ class ChartTodayState extends State<ChartTodayPage>{
     });
   }
 
-  void _onButtonPressed(String period){
-    if(period == '오늘'){
-      Navigator.pushNamed(context, '/chartToday', arguments: selectedDate);
-    } else if(period == '일간'){
-      Navigator.pushNamed(context, '/chartDay', arguments: selectedDate);
-    } else if(period == '주간') {
-      Navigator.pushNamed(context, '/chartWeek', arguments: selectedDate);
-    } else if(period == '월간') {
-      Navigator.pushNamed(context, '/chartMonth', arguments: selectedDate);
+ void _onButtonPressed(String period, String elements) {
+    if (period == '오늘') {
+      Navigator.pushNamed(
+        context,
+        '/chartToday',
+        arguments: ChartArguments(selectedDate, widget.elements),
+      );
+    } else if (period == '일간') {
+      Navigator.pushNamed(
+        context,
+        '/chartDay',
+        arguments: ChartArguments(selectedDate, widget.elements),
+      );
+    } else if (period == '주간') {
+      Navigator.pushNamed(
+        context,
+        '/chartWeek',
+        arguments: ChartArguments(selectedDate, widget.elements),
+      );
+    } else if (period == '월간') {
+      Navigator.pushNamed(
+        context,
+        '/chartMonth',
+        arguments: ChartArguments(selectedDate, widget.elements),
+      );
     }
   }
 
@@ -182,17 +197,17 @@ class ChartTodayState extends State<ChartTodayPage>{
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        Expanded(child: buildButton('오늘')),
-        Expanded(child: buildButton('일간')),
-        Expanded(child: buildButton('주간')),
-        Expanded(child: buildButton('월간')),
+       Expanded(child: buildButton('오늘', widget.elements)),
+        Expanded(child: buildButton('일간', widget.elements)),
+        Expanded(child: buildButton('주간', widget.elements)),
+        Expanded(child: buildButton('월간', widget.elements)),
       ],
     );
   }
 
-  Widget buildButton(String label) {
+  Widget buildButton(String label, String elements) {
     return ElevatedButton(
-      onPressed: () => _onButtonPressed(label),
+      onPressed: () => _onButtonPressed(label, elements),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
