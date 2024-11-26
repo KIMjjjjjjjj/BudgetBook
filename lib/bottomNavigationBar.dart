@@ -7,7 +7,9 @@ import 'package:flutter/material.dart' hide NavigationBar;
 
 
 class CustomNavigationBar extends StatefulWidget {
-  const CustomNavigationBar({super.key});
+  final String elements;
+
+  const CustomNavigationBar({super.key, required this.elements});
 
   @override
   State<CustomNavigationBar> createState() => NavigationBarState();
@@ -16,12 +18,12 @@ class CustomNavigationBar extends StatefulWidget {
 class NavigationBarState extends State<CustomNavigationBar> {
   var _index = 0;
 
-  List<Widget> _pages = [
-    HistoryPage(),
-    ChartTodayPage(),
-    BudgetSetting(),
-    SettingPage(),
-  ];
+  final List<Widget> _pages = [
+      HistoryPage(elements: widget.elements),
+      ChartTodayPage(elements: widget.elements),
+      BudgetSetting(),
+      SettingPage(elements: widget.elements),
+    ];
 
   @override
   Widget build(BuildContext context) {
