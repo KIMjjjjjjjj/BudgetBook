@@ -332,7 +332,7 @@ class ChartTodayState extends State<ChartTodayPage>{
             ),
           ),
           Container(
-            height: 300,
+            height: 275,
             padding: const EdgeInsets.all(0.0),
             color: Colors.indigo,
             child: Column(
