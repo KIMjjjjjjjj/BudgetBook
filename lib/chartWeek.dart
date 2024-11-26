@@ -3,10 +3,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 
+import 'chartToday.dart';
+
 class ChartWeekPage extends StatefulWidget{
   final DateTime? selectedDate;
+  final String? elements;
 
-  ChartWeekPage({Key? key, this.selectedDate}) : super(key: key);
+  ChartWeekPage({Key? key, this.selectedDate, this.elements}) : super(key: key);
 
   @override
   ChartWeekState createState() => ChartWeekState();
@@ -27,23 +30,26 @@ class ChartWeekState extends State<ChartWeekPage>{
   void initState() {
     super.initState();
     selectedDate = widget.selectedDate;
-    FirebaseAuth.instance.authStateChanges().listen((User? user) {
-      if (user == null) {
-        setState(() {
-          userId = null; // 로그인한 사용자 ID 설정
-        });
-      } else {
-        setState(() {
-          userId = user.uid; // 로그인한 사용자 ID 설정
-        });
-        dataOfExpense(); // 데이터 가져오기
-        dataOfIncome();
-      }
-    });
+
+    dataOfExpense();
+    dataOfIncome();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final args = ModalRoute.of(context)?.settings.arguments;
+
+    if (args is ChartArguments) {
+      setState(() {
+        selectedDate = args.selectedDate;
+      });
+    }
   }
 
   Future<void> dataOfIncome() async {
-    if (selectedDate == null || userId == null) return;
+    if (selectedDate == null || widget.elements == null) return;
 
     DateTime startDate = selectedDate!.subtract(Duration(days: 7));
     DateTime endDate = DateTime(selectedDate!.year, selectedDate!.month, selectedDate!.day, 23, 59, 59);
@@ -52,7 +58,7 @@ class ChartWeekState extends State<ChartWeekPage>{
 
     var snapshot = await FirebaseFirestore.instance
         .collection('users')
-        .doc(userId) // 사용자 ID로 문서 지정
+        .doc(widget.elements) // 사용자 ID로 문서 지정
         .collection('income')
         .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
         .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endDate))
@@ -84,7 +90,7 @@ class ChartWeekState extends State<ChartWeekPage>{
   Map<String, Color> categoryColorMap = {}; // 카테고리별 색상 저장
   int colorIndex = 0;
   Future<void> dataOfExpense() async {
-    if (selectedDate == null || userId == null) return;
+    if (selectedDate == null || widget.elements == null) return;
 
     DateTime startDate = selectedDate!.subtract(Duration(days: 7));
     DateTime endDate = DateTime(selectedDate!.year, selectedDate!.month, selectedDate!.day, 23, 59, 59);
@@ -95,7 +101,7 @@ class ChartWeekState extends State<ChartWeekPage>{
     // Firestore에서 데이터 가져오기
     var snapshot = await FirebaseFirestore.instance
         .collection('users')
-        .doc(userId) // 사용자 ID로 문서 지정
+        .doc(widget.elements) // 사용자 ID로 문서 지정
         .collection('expense')
         .where('date', isGreaterThanOrEqualTo: Timestamp.fromDate(startDate))
         .where('date', isLessThanOrEqualTo: Timestamp.fromDate(endDate))
@@ -147,15 +153,31 @@ class ChartWeekState extends State<ChartWeekPage>{
     });
   }
 
-  void _onButtonPressed(String period){
-    if(period == '오늘'){
-      Navigator.pushNamed(context, '/chartToday', arguments: selectedDate);
-    } else if(period == '일간'){
-      Navigator.pushNamed(context, '/chartDay', arguments: selectedDate);
-    } else if(period == '주간') {
-      Navigator.pushNamed(context, '/chartWeek', arguments: selectedDate);
-    } else if(period == '월간') {
-      Navigator.pushNamed(context, '/chartMonth', arguments: selectedDate);
+  void _onButtonPressed(String period, String elements) {
+    if (period == '오늘') {
+      Navigator.pushNamed(
+        context,
+        '/chartToday',
+        arguments: ChartArguments(selectedDate, widget.elements),
+      );
+    } else if (period == '일간') {
+      Navigator.pushNamed(
+        context,
+        '/chartDay',
+        arguments: ChartArguments(selectedDate, widget.elements),
+      );
+    } else if (period == '주간') {
+      Navigator.pushNamed(
+        context,
+        '/chartWeek',
+        arguments: ChartArguments(selectedDate, widget.elements),
+      );
+    } else if (period == '월간') {
+      Navigator.pushNamed(
+        context,
+        '/chartMonth',
+        arguments: ChartArguments(selectedDate, widget.elements),
+      );
     }
   }
 
@@ -192,7 +214,7 @@ class ChartWeekState extends State<ChartWeekPage>{
 
   Widget buildButton(String label) {
     return ElevatedButton(
-      onPressed: () => _onButtonPressed(label),
+      onPressed: () => _onButtonPressed(label, widget.elements!),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
