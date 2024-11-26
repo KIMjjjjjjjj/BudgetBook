@@ -3,10 +3,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 
+import 'chartToday.dart';
+
 class ChartMonthPage extends StatefulWidget{
   final DateTime? selectedDate;
+  final String? elements;
 
-  ChartMonthPage({Key? key, this.selectedDate}) : super(key: key);
+  ChartMonthPage({Key? key, this.selectedDate, this.elements}) : super(key: key);
 
   @override
   ChartMonthState createState() => ChartMonthState();
@@ -15,7 +18,6 @@ class ChartMonthPage extends StatefulWidget{
 class ChartMonthState extends State<ChartMonthPage>{
   DateTime? selectedDate;
   List<PieChartSectionData> sections = [];
-  String? userId;
 
   Map<String, double> expenseData = {};
 
@@ -27,23 +29,25 @@ class ChartMonthState extends State<ChartMonthPage>{
   void initState() {
     super.initState();
     selectedDate = widget.selectedDate;
-    FirebaseAuth.instance.authStateChanges().listen((User? user) {
-      if (user == null) {
-        setState(() {
-          userId = null; // 로그인한 사용자 ID 설정
-        });
-      } else {
-        setState(() {
-          userId = user.uid; // 로그인한 사용자 ID 설정
-        });
-        dataOfExpense(); // 데이터 가져오기
-        dataOfIncome();
-      }
-    });
+
+    dataOfExpense();
+    dataOfIncome();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)?.settings.arguments;
+
+    if (args is ChartArguments) {
+      setState(() {
+        selectedDate = args.selectedDate;
+      });
+    }
   }
 
   Future<void> dataOfIncome() async {
-    if (selectedDate == null || userId == null) return;
+    if (selectedDate == null || widget.elements == null) return;
 
     int year = selectedDate!.year;
     int month = selectedDate!.month;
@@ -53,10 +57,10 @@ class ChartMonthState extends State<ChartMonthPage>{
 
     var snapshot = await FirebaseFirestore.instance
         .collection('users')
-        .doc(userId) // 사용자 ID로 문서 지정
+        .doc(widget.elements) // 사용자 ID로 문서 지정
         .collection('income')
-        .where('year', isEqualTo: year)
         .where('month', isEqualTo: month)
+        .where('year', isEqualTo: year)
         .get();
 
     for (var doc in snapshot.docs) {
@@ -85,7 +89,7 @@ class ChartMonthState extends State<ChartMonthPage>{
   Map<String, Color> categoryColorMap = {}; // 카테고리별 색상 저장
 
   Future<void> dataOfExpense() async {
-    if (selectedDate == null || userId == null) return;
+    if (selectedDate == null || widget.elements == null) return;
 
     int year = selectedDate!.year;
     int month = selectedDate!.month;
@@ -97,10 +101,10 @@ class ChartMonthState extends State<ChartMonthPage>{
     // Firestore에서 데이터 가져오기
     var snapshot = await FirebaseFirestore.instance
         .collection('users')
-        .doc(userId) // 사용자 ID로 문서 지정
+        .doc(widget.elements) // 사용자 ID로 문서 지정
         .collection('expense')
-        .where('year', isEqualTo: year)
         .where('month', isEqualTo: month)
+        .where('year', isEqualTo: year)
         .get();
 
     for (var doc in snapshot.docs) {
@@ -149,15 +153,31 @@ class ChartMonthState extends State<ChartMonthPage>{
     });
   }
 
-  void _onButtonPressed(String period){
-    if(period == '오늘'){
-      Navigator.pushNamed(context, '/chartToday', arguments: selectedDate);
-    } else if(period == '일간'){
-      Navigator.pushNamed(context, '/chartDay', arguments: selectedDate);
-    } else if(period == '주간') {
-      Navigator.pushNamed(context, '/chartWeek', arguments: selectedDate);
-    } else if(period == '월간') {
-      Navigator.pushNamed(context, '/chartMonth', arguments: selectedDate);
+  void _onButtonPressed(String period, String elements) {
+    if (period == '오늘') {
+      Navigator.pushNamed(
+        context,
+        '/chartToday',
+        arguments: ChartArguments(selectedDate, widget.elements),
+      );
+    } else if (period == '일간') {
+      Navigator.pushNamed(
+        context,
+        '/chartDay',
+        arguments: ChartArguments(selectedDate, widget.elements),
+      );
+    } else if (period == '주간') {
+      Navigator.pushNamed(
+        context,
+        '/chartWeek',
+        arguments: ChartArguments(selectedDate, widget.elements),
+      );
+    } else if (period == '월간') {
+      Navigator.pushNamed(
+        context,
+        '/chartMonth',
+        arguments: ChartArguments(selectedDate, widget.elements),
+      );
     }
   }
 
@@ -194,7 +214,7 @@ class ChartMonthState extends State<ChartMonthPage>{
 
   Widget buildButton(String label) {
     return ElevatedButton(
-      onPressed: () => _onButtonPressed(label),
+      onPressed: () => _onButtonPressed(label,widget.elements!,),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
@@ -435,8 +455,8 @@ class ChartMonthState extends State<ChartMonthPage>{
                       SizedBox(width: 40),
                       Expanded(
                         child: Text(
-                          '${totalPercentage.toStringAsFixed(1)}%',
-                          textAlign: TextAlign.end,
+                            '${totalPercentage.toStringAsFixed(1)}%',
+                            textAlign: TextAlign.end,
                             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold )// 퍼센트 정렬
                         ),
                       ),
