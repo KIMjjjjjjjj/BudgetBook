@@ -447,7 +447,7 @@ class _HistoryPageState extends State<HistoryPage> {
 
 }
 
-void _ExpenseIncomeDialog(BuildContext context) {
+void _ExpenseIncomeDialog(BuildContext context, String elements) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
