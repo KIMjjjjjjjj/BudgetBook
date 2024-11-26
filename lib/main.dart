@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'findPassword.dart';
+import 'notification_settings.dart';
 import 'signup.dart';
 import 'findID.dart';
 import 'loginPage.dart';
@@ -39,6 +40,6 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
+  await NotificationSettingsPageState.initializeLocalNotifications();
   runApp(MyApp());
 }

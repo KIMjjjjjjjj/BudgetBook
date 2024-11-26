@@ -9,12 +9,15 @@ class BudgetSetting extends StatefulWidget {
 
 class _BudgetSettingState extends State<BudgetSetting> {
   int totalSpent = 0;
+  int budgetAmount = 1;
   final user = FirebaseAuth.instance.currentUser;
+  final TextEditingController budgetController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     TotalSpent();
+    bringBudgetAmount();
   }
 
   Future<void> TotalSpent() async {
@@ -56,6 +59,54 @@ class _BudgetSettingState extends State<BudgetSetting> {
       });
     }
 
+  Future<void> BudgetAmount(int amount) async {
+    try {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user?.uid)
+          .get();
+
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('share')
+          .where('id', arrayContains: userDoc.data()?['id'])
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final docId = querySnapshot.docs.first.id;
+        await FirebaseFirestore.instance
+            .collection('share')
+            .doc(docId)
+            .set({'budgetAmount': amount}, SetOptions(merge: true));
+      }
+    } catch (e) {
+      print('Error saving budget amount: $e');
+    }
+  }
+
+  Future<void> bringBudgetAmount() async {
+    try {
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user?.uid)
+          .get();
+
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('share')
+          .where('id', arrayContains: userDoc.data()?['id'])
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        final doc = querySnapshot.docs.first;
+        final budgetAmount = doc.data()?['budgetAmount'];
+
+        setState(() {
+          this.budgetAmount = budgetAmount;
+        });
+      }
+    } catch (e) {
+      print('Error retrieving budget amount: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +138,7 @@ class _BudgetSettingState extends State<BudgetSetting> {
             ),
             SizedBox(height: 10),
             LinearProgressIndicator(
-              value: totalSpent < 0 ? 0 : totalSpent / 1000000,
+              value: totalSpent < 0 ? 0 : totalSpent / budgetAmount,
               color: totalSpent >= 0 ? Colors.red : Colors.green,
               backgroundColor: Colors.grey[300],
             ),
@@ -102,7 +153,11 @@ class _BudgetSettingState extends State<BudgetSetting> {
                 SizedBox(width: 10,),
                 ElevatedButton(
                   onPressed: () {
-                    // 넣어야됨
+                    int newBudget = int.tryParse(budgetController.text) ?? 0;
+                    setState(() {
+                      budgetAmount = newBudget;
+                    });
+                    BudgetAmount(newBudget);
                   },
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.blue[700],
@@ -121,25 +176,26 @@ class _BudgetSettingState extends State<BudgetSetting> {
             Row(
               children: [
                 Expanded(
-            child: TextField(
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.grey[300],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide.none,
+                  child: TextField(
+                    controller: budgetController,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.grey[300],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide.none,
+                      ),
+                      hintText: '0',
+                      hintStyle: TextStyle(color: Colors.grey[600]),
+                    ),
+                  ),
                 ),
-                hintText: '0',
-                hintStyle: TextStyle(color: Colors.grey[600]),
+                SizedBox(width: 10),
+                Text('원',
+                  style: TextStyle(
+                    fontSize: 30, fontWeight: FontWeight.bold
+                  ),
                 ),
-              ),
-            ),
-            SizedBox(width: 10),
-            Text('원',
-              style: TextStyle(
-                fontSize: 30, fontWeight: FontWeight.bold
-              ),
-            ),
               ],
             ),
             SizedBox(height: 20),

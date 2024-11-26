@@ -4,6 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'notification_settings.dart';
 
 
 class HistoryPage extends StatefulWidget {
@@ -26,6 +29,7 @@ class _HistoryPageState extends State<HistoryPage> {
   int? expense;
   int? income;
   int? total;
+  int? budgetAmount;
   var f = NumberFormat('###,###,###,###');
   List<Map<String, dynamic>> transactions = [];
   Map<String, bool> isExpanded = {};
@@ -36,7 +40,7 @@ class _HistoryPageState extends State<HistoryPage> {
     super.initState();
     loadTransactionsData();
     totaldata();
-
+    fetchBudget();
     Timer.periodic(Duration(seconds: 1), (timer) async {
       await totaldata();
       await loadTransactionsData();
@@ -132,6 +136,36 @@ class _HistoryPageState extends State<HistoryPage> {
 
       setState(() {
         transactions = loadedTransactions;
+      });
+
+      final prefs = await SharedPreferences.getInstance();
+      final spendingWarning = prefs.getBool('spendingWarning') ?? true;
+      if (spendingWarning && expense! > budgetAmount!) {
+        NotificationSettingsPageState?.showNotification(
+          title: '지출 경고 알림',
+          body: '총 지출이 설정한 예산을 초과했습니다',
+        );
+      }
+    }
+  }
+
+  void fetchBudget() async {
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user?.uid)
+        .get();
+
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('share')
+        .where('id', arrayContains: userDoc.data()?['id'])
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      final doc = querySnapshot.docs.first;
+      final budgetAmount = doc.data()?['budgetAmount'];
+
+      setState(() {
+        this.budgetAmount = budgetAmount;
       });
     }
   }

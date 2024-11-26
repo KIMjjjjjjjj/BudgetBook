@@ -1,16 +1,104 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationSettingsPage extends StatefulWidget {
   @override
-  _NotificationSettingsPageState createState() => _NotificationSettingsPageState();
+  NotificationSettingsPageState createState() => NotificationSettingsPageState();
 }
 
-class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
+class NotificationSettingsPageState extends State<NotificationSettingsPage> {
   bool spendingWarning = true;
   bool regularSpending = true;
   bool roomInvitation = true;
   int selectedDay = 17;
 
+  List<Map<String, dynamic>> subscriptions = [{'text': '', 'day': 1}];
+  static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  FlutterLocalNotificationsPlugin();
+
+  void initState() {
+    super.initState();
+    loadSettings();
+    getTocken();
+    requestPermission();
+    setupFCM();
+  }
+
+  Future<void> saveSettings(String key, bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(key, value);
+  }
+  Future<void> loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      spendingWarning = prefs.getBool('spendingWarning') ?? true;
+      regularSpending = prefs.getBool('regularSpending') ?? true;
+      roomInvitation = prefs.getBool('roomInvitation') ?? true;
+    });
+  }
+
+  void getTocken() async {
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    print('FCM Token: $fcmToken');
+  }
+  void requestPermission() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+    NotificationSettings settings = await messaging.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+    print('User granted permission: ${settings.authorizationStatus}');
+  }
+  void setupFCM() {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print('Got a message whilst in the foreground!');
+      print('Message data: ${message.data}');
+
+      if (message.notification != null) {
+        print('Message also contained a notification: ${message.notification}');
+        // showLocalNotification(message.notification!);
+      }
+    });
+  }
+
+  static Future<void> initializeLocalNotifications() async {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+    AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    final InitializationSettings initializationSettings =
+    InitializationSettings(android: initializationSettingsAndroid);
+
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  static void showNotification({String? title, String? body}) {
+    const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
+      'fdefault_channel_id',
+      'Default Channel',
+      channelDescription: 'This channel is used for foreground notifications.',
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+
+    const NotificationDetails notificationDetails = NotificationDetails(
+      android: androidNotificationDetails,
+    );
+
+    flutterLocalNotificationsPlugin.show(
+      0,
+      title ?? '알림',
+      body ?? '내용 없음',
+      notificationDetails,
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,7 +126,10 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 Text('지출 경고 알림', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 Switch(
                   value: spendingWarning,
-                  onChanged: (val) => setState(() => spendingWarning = val),
+                  onChanged: (val) {
+                    setState(() => spendingWarning = val);
+                    saveSettings('spendingWarning', val);
+                  },
                   activeColor: Colors.green,
                 ),
               ],
@@ -51,67 +142,80 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                 Text('정기 지출 알림', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 Switch(
                   value: regularSpending,
-                  onChanged: (val) => setState(() => regularSpending = val),
+                  onChanged: (val) {
+                    setState(() => regularSpending = val);
+                    saveSettings('regularSpending', val);
+                  },
                   activeColor: Colors.green,
                 ),
               ],
             ),
-            Row(
-              children: [
-                IconButton(
-                  icon: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.blue[100],
-                      shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.circular(4.0),
-                    ),
-                    child: Icon(Icons.add, color: Colors.blue),
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      //버튼 클릭 시 추가
-                    });
-                  },
-                ),
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'NETFLIX',
-                      hintStyle: TextStyle(color: Colors.grey[600]),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 20),
-                Text('매월', style: TextStyle(fontSize: 16)),
-                SizedBox(width: 10),
-                DropdownButton<int>(
-                  value: selectedDay,
-                  items: List.generate(31, (index) => index + 1)
-                      .map((day) => DropdownMenuItem<int>(
-                    value: day,
-                    child: Text(day.toString()),
-                  ))
-                      .toList(),
-                  onChanged: (day) {
-                    setState(() {
-                      selectedDay = day!;
-                    });
-                  },
-                ),
-                Text('일', style: TextStyle(fontSize: 16)),
-                IconButton(
-                  icon: Icon(Icons.delete, color: Colors.grey),
-                  onPressed: () {
-                    setState(() {
-                      //버튼 클릭시 삭제
-                    });
-                  },
-                ),
-              ],
+            SizedBox(
+              height: 200,
+              child: ListView.builder(
+                itemCount: subscriptions.length,
+                itemBuilder: (context, index) {
+                  final subscription = subscriptions[index];
+                  return Row(
+                    children: [
+                      IconButton(
+                        icon: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.blue[100],
+                            shape: BoxShape.rectangle,
+                            borderRadius: BorderRadius.circular(4.0),
+                          ),
+                          child: Icon(Icons.add, color: Colors.blue),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            subscriptions.add({'text': '', 'day': 1});
+                          });
+                        }
+                      ),
+                      Expanded(
+                        child: TextField(
+                          decoration: InputDecoration(
+                            hintText: '예: NETFLIX',
+                            hintStyle: TextStyle(color: Colors.grey[600]),
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              subscription['text'] = value;
+                            });
+                          },
+                        ),
+                      ),
+                      SizedBox(width: 20),
+                      Text('매월', style: TextStyle(fontSize: 16)),
+                      SizedBox(width: 10),
+                      DropdownButton<int>(
+                        value: subscription['day'],
+                        items: List.generate(31, (index) => index + 1)
+                            .map((day) => DropdownMenuItem<int>(
+                              value: day,
+                              child: Text(day.toString()),
+                            ))
+                            .toList(),
+                        onChanged: (day) {
+                          setState(() {
+                             subscriptions[index]['day'] = day!;
+                          });
+                        },
+                      ),
+                      Text('일', style: TextStyle(fontSize: 16)),
+                      IconButton(
+                        icon: Icon(Icons.delete, color: Colors.grey),
+                        onPressed: () {
+                          setState(() {
+                            subscriptions.removeAt(index);
+                          });
+                        }
+                      ),
+                    ],
+                  );
+              })
             ),
-            SizedBox(height: 20.0),
-            Divider(),
-
             // 방 초대 알림
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,7 +226,10 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
                     Text('방 초대 알림', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     Switch(
                       value: roomInvitation,
-                      onChanged: (val) => setState(() => roomInvitation = val),
+                      onChanged: (val) {
+                        setState(() => roomInvitation = val);
+                        saveSettings('roomInvitation', val);
+                      },
                       activeColor: Colors.green,
                     ),
                   ],
@@ -132,18 +239,6 @@ class _NotificationSettingsPageState extends State<NotificationSettingsPage> {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.list), label: '내역'),
-          BottomNavigationBarItem(icon: Icon(Icons.pie_chart), label: '그래프'),
-          BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet), label: '예산 관리'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: '설정'),
-        ],
-        currentIndex: 3,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
       ),
     );
   }
