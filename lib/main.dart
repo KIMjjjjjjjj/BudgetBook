@@ -12,6 +12,7 @@ import 'chartWeek.dart';
 import 'chartMonth.dart';
 import 'chartToday.dart';
 import 'bottomNavigationBar.dart';
+import 'RoomSelectionPage.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -25,11 +26,34 @@ class MyApp extends StatelessWidget {
           '/findID' : (context) => FindIDPage(),
           '/findPassword' : (context) => FindPasswordPage(),
           '/signUp' : (context) => SignUpPage(),
-          '/chartDay': (context) => ChartDayPage(selectedDate: ModalRoute.of(context)!.settings.arguments as DateTime?),
-          '/chartWeek': (context) => ChartWeekPage(selectedDate: ModalRoute.of(context)!.settings.arguments as DateTime?),
-          '/chartMonth': (context) => ChartMonthPage(selectedDate: ModalRoute.of(context)!.settings.arguments as DateTime?),
-          '/chartToday' : (context) => ChartTodayPage(),
-          '/navigation' : (context) => CustomNavigationBar(),
+         '/chartDay': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as ChartArguments;
+          return ChartDayPage(
+            selectedDate: args.selectedDate,
+            elements: args.elements,
+          );
+        },
+        '/chartWeek': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as ChartArguments;
+          return ChartWeekPage(
+            selectedDate: args.selectedDate,
+            elements: args.elements,
+          );
+        },
+        '/chartMonth': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as ChartArguments;
+          return ChartMonthPage(
+            selectedDate: args.selectedDate,
+            elements: args.elements,
+          );
+        },
+        '/chartToday' : (context) => ChartTodayPage(elements: '',),
+        '/navigation': (context) {
+          final elements = ModalRoute.of(context)!.settings.arguments as String;
+          return CustomNavigationBar(elements: elements);
+        },
+        '/RoomSelect' : (context) => RoomSelectionPage(),
+        '/MakeRoom' : (context) => MakingSharePage(),
         },
     );
   }
