@@ -1,16 +1,98 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 class SharingSettingsPage extends StatefulWidget {
+  final String elements;
+
+  const SharingSettingsPage({required this.elements});
+
   @override
-  SharingSettingsPageState createState() => SharingSettingsPageState();
+  _SharingSettingsPageState createState() => _SharingSettingsPageState();
 }
 
-class SharingSettingsPageState extends State<SharingSettingsPage> {
-  List<String> items = ['hansung1', 'hansung2', 'hansung3'];
+class _SharingSettingsPageState extends State<SharingSettingsPage> {
+  List<String> items = [];
+  TextEditingController _roomNameController = TextEditingController();
+  TextEditingController _friendIdController = TextEditingController();
+
+  String? LoginUserId;
+  String? LoginUserRegisterId;
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentUser();
+  }
+
+  void _getCurrentUser() async {
+
+      final User? user = FirebaseAuth.instance.currentUser;
+      print('widget.elements: ${widget.elements}');
+
+      if (user != null) {
+        LoginUserId = user.uid;
+
+        var snapshot = await FirebaseFirestore.instance
+            .collection('register')
+            .doc(LoginUserId)
+            .get();
+
+        if (snapshot.exists) {
+          var data = snapshot.data();
+          if (data != null && data.containsKey('id')) {
+            setState(() {
+              LoginUserRegisterId = data['id'];
+            });
+          }
+        }
+      }
+    }
+
+  void SaveRooms() async {
+    if (LoginUserRegisterId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('로그인이 필요합니다.')),
+      );
+      return;
+    }
+
+
+      String roomName = _roomNameController.text.trim();
+      if (roomName.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('방 이름을 입력해주세요.')),
+        );
+        return;
+      }
+
+      var shareCollection = FirebaseFirestore.instance.collection('share');
+      var querySnapshot = await shareCollection
+          .where('방 이름', isEqualTo: widget.elements)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        var doc = querySnapshot.docs.first;
+
+        await shareCollection.doc(doc.id).update({
+          '방 이름': roomName,
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('방 이름이  수정되었습니다.')),
+        );
+      }
+
+      setState(() {
+        _roomNameController.clear();
+      });
+    }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         leading: const BackButton(
@@ -36,12 +118,13 @@ class SharingSettingsPageState extends State<SharingSettingsPage> {
                 ),
                 SizedBox(width: 10.0),
                 SizedBox(
-                  height: 25.0, width: 40.0,
+                  height: 25.0,
+                  width: 40.0,
                   child: ElevatedButton(
                     onPressed: () {},
                     child: Text(
                       '수정',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold), // Smaller font size
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                     ),
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(horizontal: 8.0),
@@ -54,8 +137,10 @@ class SharingSettingsPageState extends State<SharingSettingsPage> {
             ),
             SizedBox(height: 10.0),
             SizedBox(
-              width: 300.0, height: 50.0,
+              width: 300.0,
+              height: 50.0,
               child: TextField(
+                controller: _roomNameController,
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.grey[300],
@@ -63,7 +148,7 @@ class SharingSettingsPageState extends State<SharingSettingsPage> {
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,
                   ),
-                  hintText: 'Enter',
+                  hintText: '방 이름을 입력하세요',
                   hintStyle: TextStyle(color: Colors.grey[600]),
                 ),
               ),
@@ -85,7 +170,9 @@ class SharingSettingsPageState extends State<SharingSettingsPage> {
                 '아이디로 친구 추가',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-              onTap: () {},
+              onTap: () {
+                _showInviteDialog(context);
+              },
             ),
             Divider(),
             SizedBox(
@@ -111,25 +198,86 @@ class SharingSettingsPageState extends State<SharingSettingsPage> {
                       SizedBox(height: 7),
                     ],
                   );
-                }
-              )
+                },
+              ),
             ),
             Divider(),
+            Center(
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.grey[700],
+                minimumSize: Size(150, 50),
+              ),
+              onPressed: () {
+                SaveRooms();
+              },
+              child: Text(
+                '수정 하기',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+            ),
+            ),
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.list), label: '내역'),
-          BottomNavigationBarItem(icon: Icon(Icons.pie_chart), label: '그래프'),
-          BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet), label: '예산 관리'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: '설정'),
-        ],
-        currentIndex: 3,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-      ),
     );
   }
+
+  void _showInviteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('아이디로 친구 추가'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _friendIdController,
+                decoration: InputDecoration(
+                  labelText: '친구 아이디 입력',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('취소'),
+            ),
+            TextButton(
+              onPressed: () {
+                String userId = _friendIdController.text.trim();
+                if (userId.isNotEmpty) {
+                  _addFriendById(userId);
+                }
+                Navigator.pop(context);
+              },
+              child: Text('추가'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _addFriendById(String userId) async {
+
+      var userSnapshot = await FirebaseFirestore.instance
+          .collection('register')
+          .where('id', isEqualTo: userId)
+          .get();
+
+      if (userSnapshot.docs.isNotEmpty) {
+        setState(() {
+          items.add(userId);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('친구 아이디가 추가되었습니다.')),
+        );
+      }
+    }
 }
