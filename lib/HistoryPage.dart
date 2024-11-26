@@ -463,8 +463,8 @@ void _ExpenseIncomeDialog(BuildContext context) {
               Expanded(
                 child: PageView(
                   children: [
-                    ExpensePage(),
-                    IncomePage(),
+                    ExpensePage(elements: elements),
+                    IncomePage(elements: elements),
                   ],
                 ),
               ),
