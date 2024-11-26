@@ -10,6 +10,9 @@ import 'notification_settings.dart';
 import 'share_settings.dart';
 
 class SettingPage extends StatefulWidget {
+  final String elements;
+  const SettingPage({required this.elements});
+
   @override
   _SettingPageState createState() => _SettingPageState();
 }
@@ -28,7 +31,7 @@ class _SettingPageState extends State<SettingPage> {
   Future<void> loadUserData() async {
     if (user != null) {
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection('users')
+          .collection('register')
           .doc(user!.uid)
           .get();
 
@@ -140,7 +143,7 @@ class _SettingPageState extends State<SettingPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SharingSettingsPage()),
+                        MaterialPageRoute(builder: (context) => SharingSettingsPage(elements:widget.elements,)),
                       );
                     },
                   ),
