@@ -18,6 +18,8 @@ class CustomNavigationBar extends StatefulWidget {
 class NavigationBarState extends State<CustomNavigationBar> {
   var _index = 0;
 
+  @override
+  Widget build(BuildContext context) {
   final List<Widget> _pages = [
       HistoryPage(elements: widget.elements),
       ChartTodayPage(elements: widget.elements),
@@ -25,8 +27,6 @@ class NavigationBarState extends State<CustomNavigationBar> {
       SettingPage(elements: widget.elements),
     ];
 
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       body: _pages[_index],
       bottomNavigationBar: BottomNavigationBar(
