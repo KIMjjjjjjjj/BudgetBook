@@ -3,19 +3,21 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 
-class ChartDayPage extends StatefulWidget{
-  final DateTime? selectedDate;
+import 'chartToday.dart';
 
-  ChartDayPage({Key? key, this.selectedDate}) : super(key: key);
+class ChartDayPage extends StatefulWidget {
+  final DateTime? selectedDate;
+  final String? elements;
+
+  ChartDayPage({Key? key, this.selectedDate, this.elements}) : super(key: key);
 
   @override
   ChartDayState createState() => ChartDayState();
 }
 
-class ChartDayState extends State<ChartDayPage>{
+class ChartDayState extends State<ChartDayPage> {
   DateTime? selectedDate;
   List<PieChartSectionData> sections = [];
-  String? userId;
 
   Map<String, double> expenseData = {};
 
@@ -27,23 +29,26 @@ class ChartDayState extends State<ChartDayPage>{
   void initState() {
     super.initState();
     selectedDate = widget.selectedDate;
-    FirebaseAuth.instance.authStateChanges().listen((User? user) {
-      if (user == null) {
-        setState(() {
-          userId = null; // 로그인한 사용자 ID 설정
-        });
-      } else {
-        setState(() {
-          userId = user.uid; // 로그인한 사용자 ID 설정
-        });
-        dataOfExpense(); // 데이터 가져오기
-        dataOfIncome();
-      }
-    });
+
+    dataOfExpense();
+    dataOfIncome();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final args = ModalRoute.of(context)?.settings.arguments;
+
+    if (args is ChartArguments) {
+      setState(() {
+        selectedDate = args.selectedDate;
+      });
+    }
   }
 
   Future<void> dataOfIncome() async {
-    if (selectedDate == null || userId == null) return;
+    if (selectedDate == null || widget.elements == null) return;
 
     int year = selectedDate!.year;
     int month = selectedDate!.month;
@@ -53,7 +58,7 @@ class ChartDayState extends State<ChartDayPage>{
 
     var snapshot = await FirebaseFirestore.instance
         .collection('users')
-        .doc(userId) // 사용자 ID로 문서 지정
+        .doc(widget.elements) 
         .collection('income')
         .where('year', isEqualTo: year)
         .where('month', isEqualTo: month)
@@ -83,10 +88,10 @@ class ChartDayState extends State<ChartDayPage>{
     Colors.brown,
     Colors.indigo,];
 
-  Map<String, Color> categoryColorMap = {}; // 카테고리별 색상 저장
+  Map<String, Color> categoryColorMap = {};
 
   Future<void> dataOfExpense() async {
-    if (selectedDate == null || userId == null) return;
+    if (selectedDate == null || widget.elements == null) return;
 
     int year = selectedDate!.year;
     int month = selectedDate!.month;
@@ -95,10 +100,9 @@ class ChartDayState extends State<ChartDayPage>{
     expenseData.clear();
     double totalExpenseAmount = 0.0;
 
-    // Firestore에서 데이터 가져오기
     var snapshot = await FirebaseFirestore.instance
         .collection('users')
-        .doc(userId) // 사용자 ID로 문서 지정
+        .doc(widget.elements)
         .collection('expense')
         .where('year', isEqualTo: year)
         .where('month', isEqualTo: month)
@@ -106,15 +110,15 @@ class ChartDayState extends State<ChartDayPage>{
         .get();
 
     for (var doc in snapshot.docs) {
-      String category = doc['category']; // 카테고리 필드
+      String category = doc['category'];
       double expenseAmount = (doc['expenseAmount'] as int).toDouble();
 
       totalExpenseAmount += expenseAmount;
 
       if (expenseData.containsKey(category)) {
-        expenseData[category] = (expenseData[category] ?? 0) + expenseAmount; // null 체크 후 더하기
+        expenseData[category] = (expenseData[category] ?? 0) + expenseAmount;
       } else {
-        expenseData[category] = expenseAmount; // 새로운 카테고리 추가
+        expenseData[category] = expenseAmount;
       }
     }
 
@@ -127,9 +131,9 @@ class ChartDayState extends State<ChartDayPage>{
 
       if(expenseData.isEmpty || totalExpenseAmount == 0){
         sections = [PieChartSectionData(color: Colors.grey, // 빈 데이터에 대한 색상
-                    value: 1, // 최소값 설정
-                    title: '데이터 없음', // 제목
-                    radius: 110,),];
+          value: 1, // 최소값 설정
+          title: '데이터 없음', // 제목
+          radius: 110,),];
       } else {
         sections = expenseData.entries.map((entry) {
           // 카테고리별 색상 맵에 색상 추가
@@ -151,15 +155,31 @@ class ChartDayState extends State<ChartDayPage>{
     });
   }
 
-  void _onButtonPressed(String period) {
-    if(period == '오늘'){
-      Navigator.pushNamed(context, '/chartToday', arguments: selectedDate);
-    }else if(period == '일간'){
-      Navigator.pushNamed(context, '/chartDay', arguments: selectedDate);
-    } else if(period == '주간') {
-      Navigator.pushNamed(context, '/chartWeek', arguments: selectedDate);
-    } else if(period == '월간') {
-      Navigator.pushNamed(context, '/chartMonth', arguments: selectedDate);
+  void _onButtonPressed(String period, String elements) {
+    if (period == '오늘') {
+      Navigator.pushNamed(
+        context,
+        '/chartToday',
+        arguments: ChartArguments(selectedDate, widget.elements),
+      );
+    } else if (period == '일간') {
+      Navigator.pushNamed(
+        context,
+        '/chartDay',
+        arguments: ChartArguments(selectedDate, widget.elements),
+      );
+    } else if (period == '주간') {
+      Navigator.pushNamed(
+        context,
+        '/chartWeek',
+        arguments: ChartArguments(selectedDate, widget.elements),
+      );
+    } else if (period == '월간') {
+      Navigator.pushNamed(
+        context,
+        '/chartMonth',
+        arguments: ChartArguments(selectedDate, widget.elements),
+      );
     }
   }
 
@@ -196,7 +216,7 @@ class ChartDayState extends State<ChartDayPage>{
 
   Widget buildButton(String label) {
     return ElevatedButton(
-      onPressed: () => _onButtonPressed(label),
+      onPressed: () => _onButtonPressed(label, widget.elements!),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
