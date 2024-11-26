@@ -10,7 +10,9 @@ import 'notification_settings.dart';
 
 
 class HistoryPage extends StatefulWidget {
-  const HistoryPage({Key? key}) : super(key: key);
+  final String elements;
+  const HistoryPage({required this.elements});
+  
   @override
   _HistoryPageState createState() => _HistoryPageState();
 }
@@ -50,7 +52,7 @@ class _HistoryPageState extends State<HistoryPage> {
   Future<void> totaldata() async {
     int? totalExpense = await FirebaseFirestore.instance
         .collection('users')
-        .doc(user!.uid)
+        .doc(widget.elements)
         .collection('expense')
         .where('year', isEqualTo: selectedYear)
         .where('month', isEqualTo: selectedMonth)
@@ -62,7 +64,7 @@ class _HistoryPageState extends State<HistoryPage> {
 
     int? totalIncome = await FirebaseFirestore.instance
         .collection('users')
-        .doc(user!.uid)
+        .doc(widget.elements)
         .collection('income')
         .where('year', isEqualTo: selectedYear)
         .where('month', isEqualTo: selectedMonth)
@@ -83,7 +85,7 @@ class _HistoryPageState extends State<HistoryPage> {
     if (user != null) {
       QuerySnapshot<Map<String, dynamic>> expenseDocs = await FirebaseFirestore.instance
           .collection('users')
-          .doc(user!.uid)
+          .doc(widget.elements)
           .collection('expense')
           .where('year', isEqualTo: selectedYear)
           .where('month', isEqualTo: selectedMonth)
@@ -92,7 +94,7 @@ class _HistoryPageState extends State<HistoryPage> {
 
       QuerySnapshot<Map<String, dynamic>> incomeDocs = await FirebaseFirestore.instance
           .collection('users')
-          .doc(user!.uid)
+          .doc(widget.elements)
           .collection('income')
           .where('year', isEqualTo: selectedYear)
           .where('month', isEqualTo: selectedMonth)
@@ -306,7 +308,7 @@ class _HistoryPageState extends State<HistoryPage> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Color(0xFFB1C3D1),
         onPressed: () {
-          _ExpenseIncomeDialog(context);
+          _ExpenseIncomeDialog(context, widget.elements);
         },
         child: Icon(Icons.add),
       ),
@@ -475,6 +477,9 @@ void _ExpenseIncomeDialog(BuildContext context) {
 }
 
 class ExpensePage extends StatefulWidget {
+    final String elements;
+
+  const ExpensePage({required this.elements});
   @override
   _ExpensePageState createState() => _ExpensePageState();
 }
@@ -618,7 +623,7 @@ class _ExpensePageState extends State<ExpensePage> {
           onPressed: () async {
             if (ExpenseError()) {
               final element = FirebaseAuth.instance.currentUser?.uid;
-              CollectionReference subCollection = FirebaseFirestore.instance.collection('users').doc(element).collection('expense');
+              CollectionReference subCollection = FirebaseFirestore.instance.collection('users').doc(widget.elements).collection('expense');
               await subCollection.add({
                 'date': selectedDateTime,
                 'expenseAmount': int.parse(expenseAmountController.text.trim()),
@@ -640,6 +645,8 @@ class _ExpensePageState extends State<ExpensePage> {
 }
 
 class IncomePage extends StatefulWidget {
+  final String elements;
+  const IncomePage({required this.elements});
   @override
   _IncomePageState createState() => _IncomePageState();
 }
@@ -783,7 +790,7 @@ class _IncomePageState extends State<IncomePage>{
           onPressed: () async {
             if (IncomeError()) {
               final element = FirebaseAuth.instance.currentUser?.uid;
-              CollectionReference subCollection = FirebaseFirestore.instance.collection('users').doc(element).collection('income');
+              CollectionReference subCollection = FirebaseFirestore.instance.collection('users').doc(widget.elements).collection('income');
               await subCollection.add({
                 'date': selectedDateTime,
                 'expenseAmount': int.parse(incomeAmountController.text.trim()),
