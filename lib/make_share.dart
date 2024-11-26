@@ -2,25 +2,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-void main() {
-  runApp(MyApp());
-}
 
-class MyApp extends StatelessWidget {
+class SharingSettingsPage extends StatefulWidget {
+  final String elements;
+
+  const SharingSettingsPage({required this.elements});
+
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: MakingSharePage(),
-    );
-  }
+  _SharingSettingsPageState createState() => _SharingSettingsPageState();
 }
 
-class MakingSharePage extends StatefulWidget {
-  @override
-  MakingSharePageState createState() => MakingSharePageState();
-}
-
-class MakingSharePageState extends State<MakingSharePage> {
+class _SharingSettingsPageState extends State<SharingSettingsPage> {
   List<String> items = [];
   TextEditingController _roomNameController = TextEditingController();
   TextEditingController _friendIdController = TextEditingController();
@@ -31,11 +23,13 @@ class MakingSharePageState extends State<MakingSharePage> {
   @override
   void initState() {
     super.initState();
-    CurrentUser();
+    _getCurrentUser();
   }
 
-  void CurrentUser() async {
+  void _getCurrentUser() async {
+
       final User? user = FirebaseAuth.instance.currentUser;
+      print('widget.elements: ${widget.elements}');
 
       if (user != null) {
         LoginUserId = user.uid;
@@ -53,9 +47,8 @@ class MakingSharePageState extends State<MakingSharePage> {
             });
           }
         }
-      } 
-    } 
-  
+      }
+    }
 
   void SaveRooms() async {
     if (LoginUserRegisterId == null) {
@@ -64,30 +57,37 @@ class MakingSharePageState extends State<MakingSharePage> {
       );
       return;
     }
-    
-      String roomName = _roomNameController.text.trim();
 
-      if (roomName.isEmpty || items.isEmpty) {
+
+      String roomName = _roomNameController.text.trim();
+      if (roomName.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('방 이름과 아이디를 모두 입력해주세요.')),
+          SnackBar(content: Text('방 이름을 입력해주세요.')),
         );
         return;
       }
 
-      await FirebaseFirestore.instance.collection('share').add({
-        '방 이름': roomName,
-        'id': [LoginUserRegisterId, ...items],
-      });
+      var shareCollection = FirebaseFirestore.instance.collection('share');
+      var querySnapshot = await shareCollection
+          .where('방 이름', isEqualTo: widget.elements)
+          .get();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('공유방이 생성되었습니다.')),
-      );
+      if (querySnapshot.docs.isNotEmpty) {
+        var doc = querySnapshot.docs.first;
+
+        await shareCollection.doc(doc.id).update({
+          '방 이름': roomName,
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('방 이름이  수정되었습니다.')),
+        );
+      }
 
       setState(() {
-        items.clear();
         _roomNameController.clear();
       });
-    } 
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -212,11 +212,11 @@ class MakingSharePageState extends State<MakingSharePage> {
                 SaveRooms();
               },
               child: Text(
-                '만들기',
+                '수정 하기',
                 style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
-              ),
+            ),
           ],
         ),
       ),
@@ -280,5 +280,4 @@ class MakingSharePageState extends State<MakingSharePage> {
         );
       }
     }
-
 }
