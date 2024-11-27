@@ -1,4 +1,5 @@
 import 'package:budgetbook/signup.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -14,6 +15,8 @@ import 'chartToday.dart';
 import 'bottomNavigationBar.dart';
 import 'RoomSelectionPage.dart';
 import 'make_share.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -65,6 +68,21 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  tz.initializeTimeZones();
+  tz.setLocalLocation(tz.getLocation('Asia/Seoul'));
+
   await NotificationSettingsPageState.initializeLocalNotifications();
+  final notificationSettingsPage = NotificationSettingsPageState();
+  notificationSettingsPage.scheduleRegularNotification();
+  notificationSettingsPage.inviteRoomNotification();
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   runApp(MyApp());
+}
+
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("Handling a background message: ${message.messageId}");
+  NotificationSettingsPageState.showNotification(
+    title: message.notification?.title,
+    body: message.notification?.body,
+  );
 }
