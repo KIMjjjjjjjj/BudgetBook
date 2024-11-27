@@ -1,7 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:timezone/timezone.dart' as tz;
 
 class NotificationSettingsPage extends StatefulWidget {
   @override
@@ -9,12 +13,13 @@ class NotificationSettingsPage extends StatefulWidget {
 }
 
 class NotificationSettingsPageState extends State<NotificationSettingsPage> {
+  List<TextEditingController> textControllers = [];
+  List<Map<String, Object>> subscriptions = [];
+  String subscriptionText = '';
+  int subscriptionDay = 1;
   bool spendingWarning = true;
   bool regularSpending = true;
   bool roomInvitation = true;
-  int selectedDay = 17;
-
-  List<Map<String, dynamic>> subscriptions = [{'text': '', 'day': 1}];
   static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
   FlutterLocalNotificationsPlugin();
 
@@ -26,22 +31,50 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
     setupFCM();
   }
 
-  Future<void> saveSettings(String key, bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(key, value);
-  }
+  //저장 SharedPreferences
   Future<void> loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       spendingWarning = prefs.getBool('spendingWarning') ?? true;
       regularSpending = prefs.getBool('regularSpending') ?? true;
       roomInvitation = prefs.getBool('roomInvitation') ?? true;
+
+      final savedSubscriptions = prefs.getStringList('subscriptions');
+      subscriptions = savedSubscriptions!.map((subscriptionData) {
+        var parts = subscriptionData.split(':');
+        return {
+          'text': parts[0],
+          'day': int.parse(parts[1]),
+        };
+      }).toList();
+      textControllers = subscriptions
+          .map((subscription) =>
+          TextEditingController(text: subscription['text'] as String))
+          .toList();
     });
   }
+  void saveSettings() async {
+    SharedPreferences  prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('spendingWarning', spendingWarning);
+    await prefs.setBool('regularSpending', regularSpending);
+    await prefs.setBool('roomInvitation', roomInvitation);
 
+    List<String> subscriptionsToSave = subscriptions.map((sub) {
+      String text = sub['text'] as String;
+      int day = sub['day'] as int;
+      return '$text:$day';
+    }).toList();
+    await prefs.setStringList('subscriptions', subscriptionsToSave);
+  }
+
+  //firebase_messaging
   void getTocken() async {
     final fcmToken = await FirebaseMessaging.instance.getToken();
+    final user = FirebaseAuth.instance.currentUser;
     print('FCM Token: $fcmToken');
+    await FirebaseFirestore.instance.collection('users').doc(user?.uid).update({
+      'fcmToken': fcmToken,
+    });
   }
   void requestPermission() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
@@ -64,11 +97,15 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
 
       if (message.notification != null) {
         print('Message also contained a notification: ${message.notification}');
-        // showLocalNotification(message.notification!);
+        showNotification(
+          title: message.notification!.title ?? '',
+          body: message.notification!.body ?? '',
+        );
       }
     });
   }
 
+  //flutter_local_notifications
   static Future<void> initializeLocalNotifications() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
     AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -87,11 +124,9 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
       importance: Importance.max,
       priority: Priority.high,
     );
-
     const NotificationDetails notificationDetails = NotificationDetails(
       android: androidNotificationDetails,
     );
-
     flutterLocalNotificationsPlugin.show(
       0,
       title ?? '알림',
@@ -99,6 +134,72 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
       notificationDetails,
     );
   }
+
+//정기 지출 알림
+  Future<void> scheduleRegularNotification() async {
+    if (regularSpending){
+      final now = tz.TZDateTime.now(tz.local);
+      for (var subscription in subscriptions){
+        int day = subscription['day'] as int;
+        String text = subscription['text'] as String;
+
+        tz.TZDateTime notificationTime = tz.TZDateTime(tz.local, now.year, now.month, day, 12, 36);
+        if (notificationTime.isBefore(now)) {
+          notificationTime = tz.TZDateTime(tz.local, now.year, now.month + 1, day, 12, 36);
+        }
+
+        await flutterLocalNotificationsPlugin.zonedSchedule(
+          text.hashCode,
+          '정기 지출 알림',
+          '$text에 대한 정기 지출이 예정되었습니다.',
+          notificationTime,
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              'default_channel_id',
+              'Default Channel',
+              channelDescription: 'This channel is used for foreground notifications',
+              importance: Importance.max,
+              priority: Priority.high,
+            ),
+          ),
+          uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+          androidScheduleMode: AndroidScheduleMode.exact,
+          matchDateTimeComponents: DateTimeComponents.dayOfMonthAndTime,
+        );
+      }
+    }
+  }
+
+  //방 초대 알림
+  Future<void> inviteRoomNotification() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null || !roomInvitation) {
+      return;
+    }
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user?.uid)
+        .get();
+
+    final userId = userDoc.data()?['id'];
+    FirebaseFirestore.instance
+        .collection('share')
+        .where('id', arrayContains: userId)
+        .snapshots()
+        .listen((snapshot) {
+      for (var doc in snapshot.docChanges) {
+        if (doc.type == DocumentChangeType.added) {
+          if (roomInvitation) {
+            showNotification(
+              title: '방 초대 알림',
+              body: '${userId}님이 가계부 공유방에 초대되셨습니다.',
+            );
+          }
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -128,7 +229,7 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
                   value: spendingWarning,
                   onChanged: (val) {
                     setState(() => spendingWarning = val);
-                    saveSettings('spendingWarning', val);
+                    saveSettings();
                   },
                   activeColor: Colors.green,
                 ),
@@ -144,7 +245,7 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
                   value: regularSpending,
                   onChanged: (val) {
                     setState(() => regularSpending = val);
-                    saveSettings('regularSpending', val);
+                    saveSettings();
                   },
                   activeColor: Colors.green,
                 ),
@@ -170,19 +271,22 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
                         onPressed: () {
                           setState(() {
                             subscriptions.add({'text': '', 'day': 1});
+                            textControllers.add(TextEditingController());
                           });
                         }
                       ),
                       Expanded(
                         child: TextField(
+                          controller: textControllers[index],
                           decoration: InputDecoration(
                             hintText: '예: NETFLIX',
                             hintStyle: TextStyle(color: Colors.grey[600]),
                           ),
                           onChanged: (value) {
                             setState(() {
-                              subscription['text'] = value;
+                              subscriptions[index]['text'] = value;
                             });
+                            saveSettings();
                           },
                         ),
                       ),
@@ -190,7 +294,7 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
                       Text('매월', style: TextStyle(fontSize: 16)),
                       SizedBox(width: 10),
                       DropdownButton<int>(
-                        value: subscription['day'],
+                        value: subscription['day'] as int,
                         items: List.generate(31, (index) => index + 1)
                             .map((day) => DropdownMenuItem<int>(
                               value: day,
@@ -199,8 +303,9 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
                             .toList(),
                         onChanged: (day) {
                           setState(() {
-                             subscriptions[index]['day'] = day!;
+                            subscription['day'] = day!;
                           });
+                          saveSettings();
                         },
                       ),
                       Text('일', style: TextStyle(fontSize: 16)),
@@ -208,8 +313,11 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
                         icon: Icon(Icons.delete, color: Colors.grey),
                         onPressed: () {
                           setState(() {
+                            flutterLocalNotificationsPlugin.cancel(subscriptions[index]['text'].hashCode);
                             subscriptions.removeAt(index);
+                            textControllers.removeAt(index);
                           });
+                          saveSettings();
                         }
                       ),
                     ],
@@ -228,7 +336,7 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
                       value: roomInvitation,
                       onChanged: (val) {
                         setState(() => roomInvitation = val);
-                        saveSettings('roomInvitation', val);
+                        saveSettings();
                       },
                       activeColor: Colors.green,
                     ),
