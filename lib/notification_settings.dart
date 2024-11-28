@@ -170,35 +170,35 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
     }
   }
 
-  //방 초대 알림
-  Future<void> inviteRoomNotification() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null || !roomInvitation) {
-      return;
-    }
-    final userDoc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user?.uid)
-        .get();
-
-    final userId = userDoc.data()?['id'];
-    FirebaseFirestore.instance
-        .collection('share')
-        .where('id', arrayContains: userId)
-        .snapshots()
-        .listen((snapshot) {
-      for (var doc in snapshot.docChanges) {
-        if (doc.type == DocumentChangeType.added) {
-          if (roomInvitation) {
-            showNotification(
-              title: '방 초대 알림',
-              body: '${userId}님이 가계부 공유방에 초대되셨습니다.',
-            );
-          }
-        }
-      }
-    });
-  }
+  // //방 초대 알림
+  // Future<void> inviteRoomNotification() async {
+  //   final user = FirebaseAuth.instance.currentUser;
+  //   if (user == null || !roomInvitation) {
+  //     return;
+  //   }
+  //   final userDoc = await FirebaseFirestore.instance
+  //       .collection('users')
+  //       .doc(user?.uid)
+  //       .get();
+  //
+  //   final userId = userDoc.data()?['id'];
+  //   FirebaseFirestore.instance
+  //       .collection('share')
+  //       .where('id', arrayContains: userId)
+  //       .snapshots()
+  //       .listen((snapshot) {
+  //     for (var doc in snapshot.docChanges) {
+  //       if (doc.type == DocumentChangeType.added) {
+  //         if (roomInvitation) {
+  //           showNotification(
+  //             title: '방 초대 알림',
+  //             body: '${userId}님이 가계부 공유방에 초대되셨습니다.',
+  //           );
+  //         }
+  //       }
+  //     }
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
