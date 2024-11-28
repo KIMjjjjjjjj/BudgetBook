@@ -655,7 +655,7 @@ class _IncomePageState extends State<IncomePage>{
   DateTime selectedDateTime = DateTime.now();
   final TextEditingController incomeAmountController = TextEditingController();
   final TextEditingController memoController = TextEditingController();
-  String selectedCategory = '식비';
+  String selectedCategory = '월급ㅗ';
   String? errorMessage1;
   String? errorMessage2;
 
@@ -755,10 +755,10 @@ class _IncomePageState extends State<IncomePage>{
                 border: OutlineInputBorder(),
               ),
               items: const [
-                DropdownMenuItem(value: '식비', child: Text('식비')),
-                DropdownMenuItem(value: '교통비', child: Text('교통비')),
-                DropdownMenuItem(value: '마트/편의점', child: Text('마트/편의점')),
-                DropdownMenuItem(value: '패션/미용', child: Text('패션/미용')),
+                DropdownMenuItem(value: '월급', child: Text('월급')),
+                DropdownMenuItem(value: '이체', child: Text('이체')),
+                DropdownMenuItem(value: '금융소득', child: Text('금융소득')),
+                DropdownMenuItem(value: '용돈', child: Text('용돈')),
                 DropdownMenuItem(value: '기타', child: Text('기타')),
               ],
               onChanged: (value) {
@@ -793,7 +793,7 @@ class _IncomePageState extends State<IncomePage>{
               CollectionReference subCollection = FirebaseFirestore.instance.collection('users').doc(widget.elements).collection('income');
               await subCollection.add({
                 'date': selectedDateTime,
-                'expenseAmount': int.parse(incomeAmountController.text.trim()),
+                'incomeAmount': int.parse(incomeAmountController.text.trim()),
                 'year' : selectedDateTime.year,
                 'month' : selectedDateTime.month,
                 'day' : selectedDateTime.day,
