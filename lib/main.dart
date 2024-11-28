@@ -74,7 +74,7 @@ void main() async {
   await NotificationSettingsPageState.initializeLocalNotifications();
   final notificationSettingsPage = NotificationSettingsPageState();
   notificationSettingsPage.scheduleRegularNotification();
-  notificationSettingsPage.inviteRoomNotification();
+  // notificationSettingsPage.inviteRoomNotification();
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   runApp(MyApp());
 }
