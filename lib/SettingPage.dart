@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -27,6 +28,10 @@ class _SettingPageState extends State<SettingPage> {
   void initState() {
     super.initState();
     loadUserData();
+
+    Timer.periodic(Duration(seconds: 1), (timer) async {
+      await loadUserData();
+    });
   }
   Future<void> loadUserData() async {
     if (user != null) {
