@@ -1,9 +1,10 @@
+import 'dart:convert';
+
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import 'notification_settings.dart';
 
 
 class SharingSettingsPage extends StatefulWidget {
@@ -281,29 +282,30 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
           SnackBar(content: Text('친구 아이디가 추가되었습니다.')),
         );
       }
-
-      String? fcmToken = await _getFriendFcmToken(userId);
-
-      final prefs = await SharedPreferences.getInstance();
-      final roomInvitation = prefs.getBool('roomInvitation') ?? true;
-      if (roomInvitation) {
-        NotificationSettingsPageState?.showNotification(
-          title: '방 초대 알림',
-          body: '${userId}님이 가계부 공유방에 초대되셨습니다.',
-        );
-      }
+      await _sendFriendNotification(userId);
     }
 
 
-  Future<String?> _getFriendFcmToken(String userId) async {
+  Future<void> _sendFriendNotification(String userId) async {
     var userSnapshot = await FirebaseFirestore.instance
-        .collection('register')
-        .where('id', isEqualTo: userId)
+        .collection('users')
+        .doc(userId)
+        // .where('id', isEqualTo: userId)
         .get();
 
-    if (userSnapshot.docs.isNotEmpty) {
-      return userSnapshot.docs.first.data()['fcmToken'] as String?;
+    if (userSnapshot.exists) {
+      String? fcmToken = userSnapshot.data()?['fcmToken'];
+
+      final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('sendInviteNotification');
+
+      final response = await callable.call({
+        'fcmToken': fcmToken,
+        'inviterId': userId,
+      });
+
+      print(response.data);
     }
-    return null;
   }
 }
+
+
