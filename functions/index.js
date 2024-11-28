@@ -41,36 +41,55 @@ exports.sendCustomSpendingNotification = functions.pubsub
     });
   });
 
-exports.sendRoomInvitationNotification = functions.firestore
-  .document("share/{roomId}")
-  .onUpdate(async (change, context) => {
-    const newValue = change.after.data();
-    const previousValue = change.before.data();
+exports.sendInviteNotification = functions.https.onCall(async (data, context) => {
+  const { fcmToken, inviterId } = data;
 
-    const addedUserIds = newValue.id.filter(userId => !previousValue.id.includes(userId));
+  const message = {
+    notification: {
+      title: '방 초대 알림',
+      body: `${inviterId}님이 가계부 공유방에 초대되었습니다.`,
+    },
+    token: fcmToken,
+  };
 
-    for (const userId of addedUserIds) {
-      const userDoc = await admin.firestore().collection("users").doc(userId).get();
-      const userData = userDoc.data();
-      const fcmToken = userDoc.data()?.fcmToken;
-      const notificationEnabled =  userData?.roomInvitation;
+  try {
+    await admin.messaging().send(message);
+    return { success: true };
+  } catch (error) {
+    throw new functions.https.HttpsError('internal', 'Error sending message', error);
+  }
+});
 
-      if (!notificationEnabled) {
-        console.log('Notifications are disabled for this user');
-        return;
-      }
-      if (fcmToken) {
-        const message = {
-          notification: {
-            title: "방 초대 알림",
-            body: `${userId}님이 가계부 공유방에 초대되었습니다.`,
-          },
-          token: fcmToken,
-        };
-        await admin.messaging().send(message);
-      }
-    }
-  });
+//exports.sendRoomInvitationNotification = functions.firestore
+//  .document("share/{roomId}")
+//  .onUpdate(async (change, context) => {
+//    const newValue = change.after.data();
+//    const previousValue = change.before.data();
+//
+//    const addedUserIds = newValue.id.filter(userId => !previousValue.id.includes(userId));
+//
+//    for (const userId of addedUserIds) {
+//      const userDoc = await admin.firestore().collection("users").doc(userId).get();
+//      const userData = userDoc.data();
+//      const fcmToken = userData?.fcmToken;
+//      const notificationEnabled =  userData?.roomInvitation;
+//
+//      if (!notificationEnabled) {
+//        console.log('Notifications are disabled for this user');
+//        return;
+//      }
+//      if (fcmToken) {
+//        const message = {
+//          notification: {
+//            title: "방 초대 알림",
+//            body: `${userId}님이 가계부 공유방에 초대되었습니다.`,
+//          },
+//          token: fcmToken,
+//        };
+//        await admin.messaging().send(message);
+//      }
+//    }
+//  });
 
 // Create and deploy your first functions
 // https://firebase.google.com/docs/functions/get-started
