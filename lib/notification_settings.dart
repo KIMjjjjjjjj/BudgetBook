@@ -47,6 +47,9 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
           'day': int.parse(parts[1]),
         };
       }).toList();
+      if (subscriptions.isEmpty) {
+        subscriptions.add({'text': '', 'day': 1});
+      }
       textControllers = subscriptions
           .map((subscription) =>
           TextEditingController(text: subscription['text'] as String))
@@ -144,9 +147,9 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
         int day = subscription['day'] as int;
         String text = subscription['text'] as String;
 
-        tz.TZDateTime notificationTime = tz.TZDateTime(tz.local, now.year, now.month, day, 12, 36);
+        tz.TZDateTime notificationTime = tz.TZDateTime(tz.local, now.year, now.month, day, 0, 0);
         if (notificationTime.isBefore(now)) {
-          notificationTime = tz.TZDateTime(tz.local, now.year, now.month + 1, day, 12, 36);
+          notificationTime = tz.TZDateTime(tz.local, now.year, now.month + 1, day, 0, 0);
         }
 
         await flutterLocalNotificationsPlugin.zonedSchedule(
