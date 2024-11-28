@@ -151,8 +151,8 @@ class _BudgetSettingState extends State<BudgetSetting> {
             ),
             SizedBox(height: 10),
             LinearProgressIndicator(
-              value: totalSpent < 0 ? 0 : totalSpent / budgetAmount,
-              color: totalSpent >= 0 ? Colors.red : Colors.green,
+              value: (budgetAmount > 0) ? totalSpent / budgetAmount : 0,
+              color: Colors.red,
               backgroundColor: Colors.grey[300],
             ),
             SizedBox(height: 30),
