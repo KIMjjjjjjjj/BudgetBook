@@ -256,13 +256,9 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
                 String userId = _friendIdController.text.trim();
                 if (userId.isNotEmpty) {
                   bool isAdded = _addFriendById(userId) as bool;
-
-                  final prefs = await SharedPreferences.getInstance();
-                  final roomInvitation = prefs.getBool('roomInvitation') ?? true;
-                  if (roomInvitation && isAdded) {
-                    NotificationSettingsPageState?.showNotification(
-                      title: '방 초대 알림',
-                      body: '${userId}님이 가계부 공유방에 초대되셨습니다.',
+                  if(isAdded){
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('친구 아이디가 추가되었습니다.')),
                     );
                   }
                 }
@@ -287,12 +283,35 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
         setState(() {
           items.add(userId);
         });
+
+        String? fcmToken = await _getFriendFcmToken(userId);
+
+        final prefs = await SharedPreferences.getInstance();
+        final roomInvitation = prefs.getBool('roomInvitation') ?? true;
+        if (roomInvitation) {
+          NotificationSettingsPageState?.showNotification(
+            title: '방 초대 알림',
+            body: '${userId}님이 가계부 공유방에 초대되셨습니다.',
+          );
+        }
         return true;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('친구 아이디가 추가되었습니다.')),
-        );
       }else {
         return false;
       }
     }
+
+
+  Future<String?> _getFriendFcmToken(String userId) async {
+    var userSnapshot = await FirebaseFirestore.instance
+        .collection('register')
+        .where('id', isEqualTo: userId)
+        .get();
+
+    if (userSnapshot.docs.isNotEmpty) {
+      return userSnapshot.docs.first.data()['fcmToken'] as String?;
+    }
+    return null;
+  }
+
+
 }
