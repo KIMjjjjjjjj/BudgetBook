@@ -74,16 +74,22 @@ class _BudgetSettingState extends State<BudgetSetting> {
       } else {
         final querySnapshot = await FirebaseFirestore.instance
             .collection('share')
-            .where('id', arrayContains: elements)
+            .where('방 이름', isEqualTo: elements)
             .get();
-        if (querySnapshot.docs.isNotEmpty) {
-          final docId = querySnapshot.docs.first.id;
-          await FirebaseFirestore.instance
-              .collection('share')
-              .doc(docId)
-              .set({'budgetAmount': amount}, SetOptions(merge: true));
+
+        if (querySnapshot.docs.isEmpty) {
+          print("공유방이 없습니다.");
+          return;
         }
+
+        final docId = querySnapshot.docs.first.id;
+        await FirebaseFirestore.instance
+            .collection('share')
+            .doc(docId)
+            .set({'budgetAmount': amount}, SetOptions(merge: true));
       }
+
+      print("budgetAmount 업데이트 성공");
     } catch (e) {
       print('Error saving budget amount: $e');
     }
@@ -103,14 +109,17 @@ class _BudgetSettingState extends State<BudgetSetting> {
       } else {
         final querySnapshot = await FirebaseFirestore.instance
             .collection('share')
-            .where('id', arrayContains: elements)
+            .where('방 이름', isEqualTo: elements)
             .get();
+
         if (querySnapshot.docs.isNotEmpty) {
           final doc = querySnapshot.docs.first;
           final budgetAmount = doc.data()?['budgetAmount'];
           setState(() {
             this.budgetAmount = budgetAmount ?? 0;
           });
+        } else {
+          print("공유방이 없습니다.");
         }
       }
     } catch (e) {
