@@ -52,10 +52,10 @@ class MyApp extends StatelessWidget {
           );
         },
         '/chartToday' : (context) => ChartTodayPage(elements: '',),
-        '/navigation': (context) {
-          final elements = ModalRoute.of(context)!.settings.arguments as String;
+         '/navigation': (context) {
+          final elements = ModalRoute.of(context)?.settings.arguments as String? ?? 'element';
           return CustomNavigationBar(elements: elements);
-        },
+        }, 
         '/RoomSelect' : (context) => RoomSelectionPage(),
         '/MakeRoom' : (context) => MakingSharePage(),
         },
