@@ -47,22 +47,18 @@ exports.sendRoomInvitationNotification = functions.firestore
     const newValue = change.after.data();
     const previousValue = change.before.data();
 
-    const notificationEnabled = await admin.firestore()
-      .collection('users')
-      .doc(userId)  // Replace with the relevant userId
-      .get()
-      .then(doc => doc.data()?.roomInvitation);
-
-    if (!notificationEnabled) {
-      console.log('Notifications are disabled for this user');
-      return;
-    }
     const addedUserIds = newValue.id.filter(userId => !previousValue.id.includes(userId));
 
     for (const userId of addedUserIds) {
       const userDoc = await admin.firestore().collection("users").doc(userId).get();
+      const userData = userDoc.data();
       const fcmToken = userDoc.data()?.fcmToken;
+      const notificationEnabled =  userData?.roomInvitation;
 
+      if (!notificationEnabled) {
+        console.log('Notifications are disabled for this user');
+        return;
+      }
       if (fcmToken) {
         const message = {
           notification: {
