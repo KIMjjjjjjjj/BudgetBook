@@ -124,7 +124,7 @@ class FindIDPageState extends State<FindIDPage> {
       try {
         // Firestore에서 사용자 ID 검색
         QuerySnapshot snapshot = await FirebaseFirestore.instance
-            .collection('users') // 사용자 정보를 저장한 컬렉션 이름
+            .collection('register') // 사용자 정보를 저장한 컬렉션 이름
             .where('email', isEqualTo: emailController.text.trim())
             .get();
 
