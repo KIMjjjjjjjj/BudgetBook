@@ -23,7 +23,7 @@ class NavigationBarState extends State<CustomNavigationBar> {
   final List<Widget> _pages = [
       HistoryPage(elements: widget.elements),
       ChartTodayPage(elements: widget.elements),
-      BudgetSetting(),
+      BudgetSetting(elements: widget.elements),
       SettingPage(elements: widget.elements),
     ];
 
