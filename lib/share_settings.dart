@@ -1,6 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'notification_settings.dart';
 
 
 class SharingSettingsPage extends StatefulWidget {
@@ -249,10 +252,19 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
               child: Text('취소'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 String userId = _friendIdController.text.trim();
                 if (userId.isNotEmpty) {
-                  _addFriendById(userId);
+                  bool isAdded = _addFriendById(userId) as bool;
+
+                  final prefs = await SharedPreferences.getInstance();
+                  final roomInvitation = prefs.getBool('roomInvitation') ?? true;
+                  if (roomInvitation && isAdded) {
+                    NotificationSettingsPageState?.showNotification(
+                      title: '방 초대 알림',
+                      body: '${userId}님이 가계부 공유방에 초대되셨습니다.',
+                    );
+                  }
                 }
                 Navigator.pop(context);
               },
@@ -264,7 +276,7 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
     );
   }
 
-  void _addFriendById(String userId) async {
+  Future<bool> _addFriendById(String userId) async {
 
       var userSnapshot = await FirebaseFirestore.instance
           .collection('register')
@@ -275,9 +287,12 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
         setState(() {
           items.add(userId);
         });
+        return true;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('친구 아이디가 추가되었습니다.')),
         );
+      }else {
+        return false;
       }
     }
 }
