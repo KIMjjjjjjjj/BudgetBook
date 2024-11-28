@@ -252,15 +252,10 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
               child: Text('취소'),
             ),
             TextButton(
-              onPressed: () async {
+              onPressed: () {
                 String userId = _friendIdController.text.trim();
                 if (userId.isNotEmpty) {
-                  bool isAdded = _addFriendById(userId) as bool;
-                  if(isAdded){
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('친구 아이디가 추가되었습니다.')),
-                    );
-                  }
+                  _addFriendById(userId);
                 }
                 Navigator.pop(context);
               },
@@ -272,8 +267,7 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
     );
   }
 
-  Future<bool> _addFriendById(String userId) async {
-
+  void _addFriendById(String userId) async {
       var userSnapshot = await FirebaseFirestore.instance
           .collection('register')
           .where('id', isEqualTo: userId)
@@ -283,20 +277,20 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
         setState(() {
           items.add(userId);
         });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('친구 아이디가 추가되었습니다.')),
+        );
+      }
 
-        String? fcmToken = await _getFriendFcmToken(userId);
+      String? fcmToken = await _getFriendFcmToken(userId);
 
-        final prefs = await SharedPreferences.getInstance();
-        final roomInvitation = prefs.getBool('roomInvitation') ?? true;
-        if (roomInvitation) {
-          NotificationSettingsPageState?.showNotification(
-            title: '방 초대 알림',
-            body: '${userId}님이 가계부 공유방에 초대되셨습니다.',
-          );
-        }
-        return true;
-      }else {
-        return false;
+      final prefs = await SharedPreferences.getInstance();
+      final roomInvitation = prefs.getBool('roomInvitation') ?? true;
+      if (roomInvitation) {
+        NotificationSettingsPageState?.showNotification(
+          title: '방 초대 알림',
+          body: '${userId}님이 가계부 공유방에 초대되셨습니다.',
+        );
       }
     }
 
@@ -312,6 +306,4 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
     }
     return null;
   }
-
-
 }
