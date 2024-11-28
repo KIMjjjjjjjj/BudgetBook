@@ -65,7 +65,7 @@ class LoginPageState extends State<LoginPage>{
     try {
       // Firestore에서 사용자 ID 검색
       QuerySnapshot snapshot = await FirebaseFirestore.instance
-          .collection('users') // 사용자 정보를 저장한 컬렉션 이름
+          .collection('register') // 사용자 정보를 저장한 컬렉션 이름
           .where('id', isEqualTo: idController.text.trim())
           .get();
       if (snapshot.docs.isNotEmpty) {
