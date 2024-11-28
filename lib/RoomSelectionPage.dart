@@ -9,7 +9,7 @@ class RoomSelectionPage extends StatefulWidget {
   RoomSelectionPageState createState() => RoomSelectionPageState();
 }
 
-class RoomSelectionPageState  extends State<RoomSelectionPage> {
+class RoomSelectionPageState extends State<RoomSelectionPage> {
   List<String> sharedRooms = [];
   String elements = "";
 
@@ -45,8 +45,12 @@ class RoomSelectionPageState  extends State<RoomSelectionPage> {
         .doc(userUid)
         .get();
 
-
-    final ID = userDoc.data()?['id'];
+    final data = userDoc.data();
+    final ID = data?['id'];
+    if (ID == null) {
+      print("ID가 없습니다.");
+      return;
+    }
 
     final querySnapshot = await FirebaseFirestore.instance
         .collection('share')
@@ -55,40 +59,42 @@ class RoomSelectionPageState  extends State<RoomSelectionPage> {
 
     if (querySnapshot.docs.isNotEmpty) {
       setState(() {
-        sharedRooms = querySnapshot.docs.map((doc) => doc['방 이름'].toString()).toList();
+        sharedRooms = querySnapshot.docs
+            .map((doc) => doc['방 이름']?.toString() ?? ' ')
+            .toList();
       });
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[200],
       body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                "가계부를 선택하세요",
-               style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  buildRoomBox(
-                    icon: Icons.person,
-                    label: '개인방',
-                    onPressed: () {
-                      final userUid = FirebaseAuth.instance.currentUser?.uid;
-                      if (userUid != null) {
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "가계부를 선택하세요",
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 30),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                buildRoomBox(
+                  icon: Icons.person,
+                  label: '개인방',
+                  onPressed: () {
+                    final userUid = FirebaseAuth.instance.currentUser?.uid;
+                    if (userUid != null) {
                       elements = userUid;
                       Navigator.pushNamed(context, '/navigation', arguments: elements);
                     }
-                    },
-                  ),
-                  SizedBox(width: 20),
-                  if (sharedRooms.isNotEmpty)
+                  },
+                ),
+                SizedBox(width: 20),
+                if (sharedRooms.isNotEmpty)
                   ...sharedRooms.map((roomName) => Padding(
                     padding: const EdgeInsets.only(right: 15.0),
                     child: buildRoomBox(
@@ -101,18 +107,19 @@ class RoomSelectionPageState  extends State<RoomSelectionPage> {
                       },
                     ),
                   )).toList(),
-                ],
-              ),
-              SizedBox(height: 30),
-              buildRoomBox(
-                icon: Icons.add,
-                label: '방 추가',
-                onPressed: () {
-                  Navigator.pushNamed(context, '/MakeRoom');
-                },
-              )
-            ],
-          )
+              ],
+            ),
+            SizedBox(height: 30),
+            buildRoomBox(
+              icon: Icons.add,
+              label: '방 추가',
+              onPressed: () {
+                Navigator.pushNamed(context, '/MakeRoom');
+                print('방 추가');
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
