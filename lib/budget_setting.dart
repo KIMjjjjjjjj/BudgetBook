@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class BudgetSetting extends StatefulWidget {
+  final String elements;
+
+  const BudgetSetting({required this.elements});
   @override
   _BudgetSettingState createState() => _BudgetSettingState();
 }
 
 class _BudgetSettingState extends State<BudgetSetting> {
-  String? elements;
   int totalSpent = 0;
   int budgetAmount = 1;
   final user = FirebaseAuth.instance.currentUser;
@@ -21,15 +23,6 @@ class _BudgetSettingState extends State<BudgetSetting> {
     bringBudgetAmount();
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    elements = ModalRoute.of(context)?.settings.arguments as String?;
-    if (elements != null) {
-      TotalSpent();
-    }
-  }
-
   Future<void> TotalSpent() async {
     int totalExpense = 0;
 
@@ -39,7 +32,7 @@ class _BudgetSettingState extends State<BudgetSetting> {
 
     QuerySnapshot<Map<String, dynamic>> expenseDocs = await FirebaseFirestore.instance
         .collection('users')
-        .doc(elements)
+        .doc(widget.elements)
         .collection('expense')
         .where('year', isEqualTo: currentYear)
         .where('month', isEqualTo: currentMonth)
@@ -47,7 +40,7 @@ class _BudgetSettingState extends State<BudgetSetting> {
 
     QuerySnapshot<Map<String, dynamic>> incomeDocs = await FirebaseFirestore.instance
         .collection('users')
-        .doc(elements)
+        .doc(widget.elements)
         .collection('income')
         .where('year', isEqualTo: currentYear)
         .where('month', isEqualTo: currentMonth)
@@ -66,7 +59,7 @@ class _BudgetSettingState extends State<BudgetSetting> {
 
   Future<void> BudgetAmount(int amount) async {
     try {
-      if (elements == user?.uid) {
+      if (widget.elements == user?.uid) {
         await FirebaseFirestore.instance
             .collection('users')
             .doc(user?.uid)
@@ -74,7 +67,7 @@ class _BudgetSettingState extends State<BudgetSetting> {
       } else {
         final querySnapshot = await FirebaseFirestore.instance
             .collection('share')
-            .where('방 이름', isEqualTo: elements)
+            .where('방 이름', isEqualTo: widget.elements)
             .get();
 
         if (querySnapshot.docs.isEmpty) {
@@ -97,7 +90,7 @@ class _BudgetSettingState extends State<BudgetSetting> {
 
   Future<void> bringBudgetAmount() async {
     try {
-      if (elements == user?.uid) {
+      if (widget.elements == user?.uid) {
         final userDoc = await FirebaseFirestore.instance
             .collection('users')
             .doc(user?.uid)
@@ -109,7 +102,7 @@ class _BudgetSettingState extends State<BudgetSetting> {
       } else {
         final querySnapshot = await FirebaseFirestore.instance
             .collection('share')
-            .where('방 이름', isEqualTo: elements)
+            .where('방 이름', isEqualTo: widget.elements)
             .get();
 
         if (querySnapshot.docs.isNotEmpty) {
