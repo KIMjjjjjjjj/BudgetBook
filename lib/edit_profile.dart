@@ -51,7 +51,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Future<void> loadUserData() async{
     DocumentSnapshot userDoc = await FirebaseFirestore.instance
-        .collection('users')
+        .collection('register')
         .doc(user?.uid)
         .get();
 
@@ -86,14 +86,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
       await storageRef.putFile(profileImage!);//저장
       profileImageUrl = await storageRef.getDownloadURL();//download url 가져오기
       await FirebaseFirestore.instance
-          .collection('users')
+          .collection('register')
           .doc(user!.uid)
           .update({
         'profileImageUrl':profileImageUrl,
       });
     } else {
       await FirebaseFirestore.instance
-          .collection('users')
+          .collection('register')
           .doc(user!.uid)
           .update({
         'profileImageUrl':null,
