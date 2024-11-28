@@ -8,6 +8,7 @@ class BudgetSetting extends StatefulWidget {
 }
 
 class _BudgetSettingState extends State<BudgetSetting> {
+  String? elements;
   int totalSpent = 0;
   int budgetAmount = 1;
   final user = FirebaseAuth.instance.currentUser;
@@ -20,63 +21,68 @@ class _BudgetSettingState extends State<BudgetSetting> {
     bringBudgetAmount();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    elements = ModalRoute.of(context)?.settings.arguments as String?;
+    if (elements != null) {
+      TotalSpent();
+    }
+  }
+
   Future<void> TotalSpent() async {
-    int totalIncome = 0;
     int totalExpense = 0;
 
     DateTime now = DateTime.now();
     int currentYear = now.year;
     int currentMonth = now.month;
 
-      QuerySnapshot<Map<String, dynamic>> expenseDocs = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user!.uid)
-          .collection('expense')
-          .where('year', isEqualTo: currentYear)
-          .where('month', isEqualTo: currentMonth)
-          .get();
+    QuerySnapshot<Map<String, dynamic>> expenseDocs = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(elements)
+        .collection('expense')
+        .where('year', isEqualTo: currentYear)
+        .where('month', isEqualTo: currentMonth)
+        .get();
 
-      QuerySnapshot<Map<String, dynamic>> incomeDocs = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user!.uid)
-          .collection('income')
-          .where('year', isEqualTo: currentYear)
-          .where('month', isEqualTo: currentMonth)
-          .get();
+    QuerySnapshot<Map<String, dynamic>> incomeDocs = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(elements)
+        .collection('income')
+        .where('year', isEqualTo: currentYear)
+        .where('month', isEqualTo: currentMonth)
+        .get();
 
-      for (var doc in expenseDocs.docs) {
-        Map<String, dynamic> data = doc.data();
-        totalExpense += data['expenseAmount'] as int;
-      }
-
-      for (var doc in incomeDocs.docs) {
-        Map<String, dynamic> data = doc.data();
-        totalIncome += data['incomeAmount'] as int;
-      }
-
-      setState(() {
-        totalSpent = totalExpense;
-      });
+    for (var doc in expenseDocs.docs) {
+      Map<String, dynamic> data = doc.data();
+      totalExpense += data['expenseAmount'] as int;
     }
+
+
+    setState(() {
+      totalSpent = totalExpense;
+    });
+  }
 
   Future<void> BudgetAmount(int amount) async {
     try {
-      final userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user?.uid)
-          .get();
-
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('share')
-          .where('id', arrayContains: userDoc.data()?['id'])
-          .get();
-
-      if (querySnapshot.docs.isNotEmpty) {
-        final docId = querySnapshot.docs.first.id;
+      if (elements == user?.uid) {
         await FirebaseFirestore.instance
-            .collection('share')
-            .doc(docId)
+            .collection('users')
+            .doc(user?.uid)
             .set({'budgetAmount': amount}, SetOptions(merge: true));
+      } else {
+        final querySnapshot = await FirebaseFirestore.instance
+            .collection('share')
+            .where('id', arrayContains: elements)
+            .get();
+        if (querySnapshot.docs.isNotEmpty) {
+          final docId = querySnapshot.docs.first.id;
+          await FirebaseFirestore.instance
+              .collection('share')
+              .doc(docId)
+              .set({'budgetAmount': amount}, SetOptions(merge: true));
+        }
       }
     } catch (e) {
       print('Error saving budget amount: $e');
@@ -85,28 +91,33 @@ class _BudgetSettingState extends State<BudgetSetting> {
 
   Future<void> bringBudgetAmount() async {
     try {
-      final userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user?.uid)
-          .get();
-
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('share')
-          .where('id', arrayContains: userDoc.data()?['id'])
-          .get();
-
-      if (querySnapshot.docs.isNotEmpty) {
-        final doc = querySnapshot.docs.first;
-        final budgetAmount = doc.data()?['budgetAmount'];
-
+      if (elements == user?.uid) {
+        final userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user?.uid)
+            .get();
+        final budgetAmount = userDoc.data()?['budgetAmount'];
         setState(() {
-          this.budgetAmount = budgetAmount;
+          this.budgetAmount = budgetAmount ?? 0;
         });
+      } else {
+        final querySnapshot = await FirebaseFirestore.instance
+            .collection('share')
+            .where('id', arrayContains: elements)
+            .get();
+        if (querySnapshot.docs.isNotEmpty) {
+          final doc = querySnapshot.docs.first;
+          final budgetAmount = doc.data()?['budgetAmount'];
+          setState(() {
+            this.budgetAmount = budgetAmount ?? 0;
+          });
+        }
       }
     } catch (e) {
       print('Error retrieving budget amount: $e');
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -193,7 +204,7 @@ class _BudgetSettingState extends State<BudgetSetting> {
                 SizedBox(width: 10),
                 Text('원',
                   style: TextStyle(
-                    fontSize: 30, fontWeight: FontWeight.bold
+                      fontSize: 30, fontWeight: FontWeight.bold
                   ),
                 ),
               ],
