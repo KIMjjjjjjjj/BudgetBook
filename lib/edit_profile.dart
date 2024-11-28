@@ -102,7 +102,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
     if (userNewNickname.isNotEmpty){
       await FirebaseFirestore.instance
-          .collection('users')
+          .collection('register')
           .doc(user!.uid)
           .update({
         'nickname':userNewNickname,
