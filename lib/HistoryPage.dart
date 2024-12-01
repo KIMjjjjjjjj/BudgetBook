@@ -655,7 +655,7 @@ class _IncomePageState extends State<IncomePage>{
   DateTime selectedDateTime = DateTime.now();
   final TextEditingController incomeAmountController = TextEditingController();
   final TextEditingController memoController = TextEditingController();
-  String selectedCategory = '월급ㅗ';
+  String selectedCategory = '월급';
   String? errorMessage1;
   String? errorMessage2;
 
