@@ -28,7 +28,7 @@ class ChartDayState extends State<ChartDayPage> {
   @override
   void initState() {
     super.initState();
-    selectedDate = widget.selectedDate;
+    selectedDate = DateTime.now();
 
     dataOfExpense();
     dataOfIncome();
@@ -58,7 +58,7 @@ class ChartDayState extends State<ChartDayPage> {
 
     var snapshot = await FirebaseFirestore.instance
         .collection('users')
-        .doc(widget.elements) 
+        .doc(widget.elements)
         .collection('income')
         .where('year', isEqualTo: year)
         .where('month', isEqualTo: month)
@@ -155,34 +155,6 @@ class ChartDayState extends State<ChartDayPage> {
     });
   }
 
-  void _onButtonPressed(String period, String elements) {
-    if (period == '오늘') {
-      Navigator.pushNamed(
-        context,
-        '/chartToday',
-        arguments: ChartArguments(selectedDate, widget.elements),
-      );
-    } else if (period == '일간') {
-      Navigator.pushNamed(
-        context,
-        '/chartDay',
-        arguments: ChartArguments(selectedDate, widget.elements),
-      );
-    } else if (period == '주간') {
-      Navigator.pushNamed(
-        context,
-        '/chartWeek',
-        arguments: ChartArguments(selectedDate, widget.elements),
-      );
-    } else if (period == '월간') {
-      Navigator.pushNamed(
-        context,
-        '/chartMonth',
-        arguments: ChartArguments(selectedDate, widget.elements),
-      );
-    }
-  }
-
   void selectDate() async {
     DateTime selectedDateTime = DateTime.now();
 
@@ -200,33 +172,6 @@ class ChartDayState extends State<ChartDayPage> {
       dataOfExpense();
       dataOfIncome();
     }
-  }
-
-  Widget buttonLine() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Expanded(child: buildButton('오늘')),
-        Expanded(child: buildButton('일간')),
-        Expanded(child: buildButton('주간')),
-        Expanded(child: buildButton('월간')),
-      ],
-    );
-  }
-
-  Widget buildButton(String label) {
-    return ElevatedButton(
-      onPressed: () => _onButtonPressed(label, widget.elements!),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero,
-        ),
-        padding: EdgeInsets.symmetric(vertical: 10),
-      ),
-      child: Text(label),
-    );
   }
 
   Widget selectDateWidget() {
@@ -252,20 +197,9 @@ class ChartDayState extends State<ChartDayPage> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.grey[200],
-      appBar: AppBar(
-        backgroundColor: Colors.grey[200],
-        title: Text('차트 페이지'),
-        leading: const BackButton(
-          color: Colors.white,
-        ),
-      ),
       body: Column(
         children: [
           selectDateWidget(),
-          Padding(
-            padding: EdgeInsets.fromLTRB(16, 0, 16, 0), // 하단 패딩을 0으로 설정
-            child: buttonLine(),
-          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
             child: Row(
