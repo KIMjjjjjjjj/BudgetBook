@@ -2,6 +2,7 @@ import 'chartToday.dart';
 import 'HistoryPage.dart';
 import 'SettingPage.dart';
 import 'budget_setting.dart';
+import 'chartTab.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart' hide NavigationBar;
 
@@ -22,7 +23,7 @@ class NavigationBarState extends State<CustomNavigationBar> {
   Widget build(BuildContext context) {
   final List<Widget> _pages = [
       HistoryPage(elements: widget.elements),
-      ChartTodayPage(elements: widget.elements),
+      TabBarSet(elements: widget.elements),
       BudgetSetting(elements: widget.elements),
       SettingPage(elements: widget.elements),
     ];
