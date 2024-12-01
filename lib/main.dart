@@ -1,4 +1,5 @@
 import 'package:budgetbook/signup.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -68,21 +69,22 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: AndroidProvider.playIntegrity,
+  );
   tz.initializeTimeZones();
   tz.setLocalLocation(tz.getLocation('Asia/Seoul'));
 
-  await NotificationSettingsPageState.initializeLocalNotifications();
-  final notificationSettingsPage = NotificationSettingsPageState();
-  notificationSettingsPage.scheduleRegularNotification();
-  // notificationSettingsPage.inviteRoomNotification();
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   runApp(MyApp());
 }
 
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print("Handling a background message: ${message.messageId}");
-  NotificationSettingsPageState.showNotification(
-    title: message.notification?.title,
-    body: message.notification?.body,
-  );
+  if (message.notification != null){
+    NotificationSettingsPageState.showNotification(
+      title: message.notification!.title,
+      body: message.notification!.body,
+    );
+  }
 }
