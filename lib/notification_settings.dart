@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -25,13 +26,16 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
 
   void initState() {
     super.initState();
+    initializeLocalNotifications();
+    createNotificationChannel();
     loadSettings();
     getTocken();
     requestPermission();
     setupFCM();
+    scheduleRegularNotification();
   }
 
-  //저장 SharedPreferences
+  //저장
   Future<void> loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -40,20 +44,26 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
       roomInvitation = prefs.getBool('roomInvitation') ?? true;
 
       final savedSubscriptions = prefs.getStringList('subscriptions');
-      subscriptions = savedSubscriptions!.map((subscriptionData) {
-        var parts = subscriptionData.split(':');
-        return {
-          'text': parts[0],
-          'day': int.parse(parts[1]),
-        };
-      }).toList();
-      if (subscriptions.isEmpty) {
-        subscriptions.add({'text': '', 'day': 1});
+      if (savedSubscriptions == null || savedSubscriptions.isEmpty) {
+        subscriptions = [{'text': '', 'day': 1}];
+        textControllers = [TextEditingController()];
+      } else {
+        subscriptions = savedSubscriptions!.map((subscriptionData) {
+          var parts = subscriptionData.split(':');
+          return {
+            'text': parts[0],
+            'day': int.parse(parts[1]),
+          };
+        }).toList() ?? [];
+        if (subscriptions.isEmpty) {
+          subscriptions.add({'text': '', 'day': 1});
+        }
+        textControllers = subscriptions
+            .map((subscription) =>
+            TextEditingController(text: subscription['text'] as String))
+            .toList();
       }
-      textControllers = subscriptions
-          .map((subscription) =>
-          TextEditingController(text: subscription['text'] as String))
-          .toList();
+
     });
   }
   void saveSettings() async {
@@ -70,7 +80,7 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
     await prefs.setStringList('subscriptions', subscriptionsToSave);
   }
 
-  //firebase_messaging
+  //초기 세팅
   void getTocken() async {
     final fcmToken = await FirebaseMessaging.instance.getToken();
     final user = FirebaseAuth.instance.currentUser;
@@ -92,6 +102,7 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
       provisional: false,
       sound: true,
     );
+
     print('User granted permission: ${settings.authorizationStatus}');
   }
   void setupFCM() {
@@ -107,9 +118,11 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
         );
       }
     });
+    FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
   }
-
-  //flutter_local_notifications
+  Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+    print('Handling a background message: ${message.messageId}');
+  }
   static Future<void> initializeLocalNotifications() async {
     const AndroidInitializationSettings initializationSettingsAndroid =
     AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -119,10 +132,23 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
 
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
+  Future<void> createNotificationChannel() async {
+    const AndroidNotificationChannel channel = AndroidNotificationChannel(
+      'default_channel_id',
+      'Default Channel',
+      description: 'This channel is used for regular notifications',
+      importance: Importance.max,
+      enableVibration: true,
+    );
 
-  static void showNotification({String? title, String? body}) {
+    await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channel);
+  }
+  //지출경고알림
+  static Future<void> showNotification({String? title, String? body}) async {
     const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
-      'fdefault_channel_id',
+      'default_channel_id',
       'Default Channel',
       channelDescription: 'This channel is used for foreground notifications.',
       importance: Importance.max,
@@ -139,7 +165,7 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
     );
   }
 
-//정기 지출 알림
+  //정기 지출 알림
   Future<void> scheduleRegularNotification() async {
     if (regularSpending){
       final now = tz.TZDateTime.now(tz.local);
@@ -147,13 +173,13 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
         int day = subscription['day'] as int;
         String text = subscription['text'] as String;
 
-        tz.TZDateTime notificationTime = tz.TZDateTime(tz.local, now.year, now.month, day, 0, 0);
+        tz.TZDateTime notificationTime = tz.TZDateTime(tz.local, now.year, now.month, day, 05, 25);
         if (notificationTime.isBefore(now)) {
-          notificationTime = tz.TZDateTime(tz.local, now.year, now.month + 1, day, 0, 0);
+          notificationTime = tz.TZDateTime(tz.local, now.year, now.month + 1, day, 05, 25);
         }
 
         await flutterLocalNotificationsPlugin.zonedSchedule(
-          text.hashCode,
+          subscription.hashCode,
           '정기 지출 알림',
           '$text에 대한 정기 지출이 예정되었습니다.',
           notificationTime,
@@ -170,6 +196,25 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
           androidScheduleMode: AndroidScheduleMode.exact,
           matchDateTimeComponents: DateTimeComponents.dayOfMonthAndTime,
         );
+        _sendNotification(FirebaseAuth.instance.currentUser!.uid, text);
+      }
+    }
+  }
+
+  Future<void> _sendNotification(String userId, String spendingText) async {
+    var userSnapshot = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .get();
+
+    if (userSnapshot.exists) {
+      String? fcmToken = userSnapshot.data()?['fcmToken'];
+
+      if (fcmToken != null) {
+        final callable = FirebaseFunctions.instance.httpsCallable(
+            'sendRegularSpendingNotification');
+        await callable.call(
+            {'fcmToken': fcmToken, 'spendingText': spendingText});
       }
     }
   }
