@@ -8,12 +8,16 @@ class AccountPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Color(0xFFEFEFF4),
       appBar: AppBar(
         leading: const BackButton(
-          color: Colors.black,
+          color: Colors.white,
         ),
-        title: Text("계정 관리"),
+        title: Text(
+          "계정 관리",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: Colors.indigoAccent,
       ),
       body: ListView(
         children: <Widget>[

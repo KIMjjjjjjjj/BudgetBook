@@ -214,9 +214,9 @@ class _HistoryPageState extends State<HistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Color(0xFFEFEFF4),
       appBar: AppBar(
-        backgroundColor: Colors.grey[300],
+        backgroundColor: Color(0xFFEFEFF4),
         titleSpacing: 15,
         title: Row(
           children: [
@@ -306,11 +306,11 @@ class _HistoryPageState extends State<HistoryPage> {
       ),
       //navigationBar
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Color(0xFFB1C3D1),
+        backgroundColor: Colors.indigoAccent,
         onPressed: () {
           _ExpenseIncomeDialog(context, widget.elements);
         },
-        child: Icon(Icons.add),
+        child: Icon(Icons.add, color: Colors.white),
       ),
     );
   }
@@ -348,7 +348,7 @@ class _HistoryPageState extends State<HistoryPage> {
             });
           },
           child: Container(
-            color: Color(0xFFB1C3D1),
+            color: Colors.indigoAccent,
             padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 16.0),
             width: double.infinity,
             child: Row(
@@ -360,7 +360,7 @@ class _HistoryPageState extends State<HistoryPage> {
                       day,
                       style: TextStyle(
                         fontSize: 15,
-                        color: Colors.black,
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -386,7 +386,7 @@ class _HistoryPageState extends State<HistoryPage> {
                   totalAmount,
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.black,
+                    color: Colors.white,
                   ),
                 ),
               ],

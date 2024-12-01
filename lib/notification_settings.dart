@@ -222,16 +222,16 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Color(0xFFEFEFF4),
       appBar: AppBar(
         leading: const BackButton(
-          color: Colors.black,
+          color: Colors.white,
         ),
         title: Text(
           '알림 설정',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.grey[100],
+        backgroundColor: Colors.indigoAccent,
         elevation: 0,
       ),
       body: Padding(
@@ -343,6 +343,7 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
                   );
               })
             ),
+            Divider(),
             // 방 초대 알림
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,

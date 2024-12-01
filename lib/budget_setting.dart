@@ -124,44 +124,43 @@ class _BudgetSettingState extends State<BudgetSetting> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Color(0xFFEFEFF4),
       appBar: AppBar(
-        leading: const BackButton(
-          color: Colors.black,
-        ),
         title: Text(
           '이번달 예산',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.grey[200],
+        backgroundColor: Colors.indigoAccent,
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            SizedBox(height: 15),
             Text(
               '오늘까지 소비',
               style: TextStyle(fontSize: 14),
             ),
             SizedBox(height: 10),
             Text(
-              '${totalSpent.toString()}원',
+              '-${totalSpent.toString()} 원',
               style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 10),
             LinearProgressIndicator(
               value: (budgetAmount > 0) ? totalSpent / budgetAmount : 0,
-              color: Colors.red,
+              color: Color(0xFF800000),
               backgroundColor: Colors.grey[300],
+              minHeight: 12,
             ),
-            SizedBox(height: 30),
+            SizedBox(height: 60),
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
                   '예산 설정',
-                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(width: 10,),
                 ElevatedButton(
@@ -173,45 +172,48 @@ class _BudgetSettingState extends State<BudgetSetting> {
                     BudgetAmount(newBudget);
                   },
                   style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.blue[700],
-                    backgroundColor: Colors.blue[100],
+                    foregroundColor: Colors.indigoAccent[700],
+                    backgroundColor: Colors.indigoAccent[100],
                     padding: EdgeInsets.symmetric(horizontal: 8.0),
-                    minimumSize: Size(45, 35),
+                    minimumSize: Size(45, 30),
                   ),
                   child: Text(
                     '수정',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 12, color: Colors.indigo, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 10),
             Row(
               children: [
                 Expanded(
                   child: TextField(
                     controller: budgetController,
+                    textAlign: TextAlign.right,
+                    style: TextStyle(fontSize: 20),
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: Colors.grey[300],
+                      contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide.none,
                       ),
                       hintText: '0',
-                      hintStyle: TextStyle(color: Colors.grey[600]),
+                      hintStyle: TextStyle(fontSize: 20, color: Colors.grey[600]),
                     ),
                   ),
                 ),
                 SizedBox(width: 10),
                 Text('원',
                   style: TextStyle(
-                      fontSize: 30, fontWeight: FontWeight.bold
+                      fontSize: 23, fontWeight: FontWeight.bold
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 8),
             Text(
               '남은 예산이 설정 금액에 도달할 시 알림이 갑니다',
               style: TextStyle(fontSize: 14),

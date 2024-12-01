@@ -69,16 +69,16 @@ class RoomSelectionPageState extends State<RoomSelectionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Color(0xFFEFEFF4),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               "가계부를 선택하세요",
-              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.indigo),
             ),
-            SizedBox(height: 30),
+            SizedBox(height: 40),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -130,6 +130,7 @@ class RoomSelectionPageState extends State<RoomSelectionPage> {
         Material(
           color: Colors.grey[300],
           borderRadius: BorderRadius.circular(10),
+          elevation: 4,
           child: InkWell(
             onTap: onPressed,
             borderRadius: BorderRadius.circular(10),
@@ -137,10 +138,22 @@ class RoomSelectionPageState extends State<RoomSelectionPage> {
               width: 120,
               height: 120,
               alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.indigo[50],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    spreadRadius: 2,
+                    blurRadius: 6,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
               child: Icon(
                 icon,
                 size: 70,
-                color: Colors.black,
+                color: Colors.indigoAccent,
               ),
             ),
           ),
@@ -150,7 +163,8 @@ class RoomSelectionPageState extends State<RoomSelectionPage> {
           label,
           style: TextStyle(
             fontSize: 14,
-            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            color: Colors.indigoAccent,
           ),
         ),
       ],

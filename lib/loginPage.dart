@@ -29,7 +29,7 @@ class LoginPageState extends State<LoginPage>{
 
   String? checkIDErrorText() {
     if (idController.text.isEmpty) {
-      return '이메일을 입력해주세요.';
+      return '아이디를 입력해주세요.';
     }
     return null; // 유효한 경우 null 반환
   }
@@ -121,9 +121,24 @@ class LoginPageState extends State<LoginPage>{
       keyboardType: TextInputType.text,
       decoration: InputDecoration(
         labelText: "아이디",
-        enabledBorder: customBorder(2, Colors.blue),
-        errorBorder: customBorder(2, Colors.red),
-        focusedErrorBorder: customBorder(4, Colors.red),
+        labelStyle: TextStyle(color: Colors.indigoAccent,),
+        prefixIcon: Icon(Icons.person, color: Colors.indigoAccent,),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.indigoAccent, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.indigoAccent, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.red, width: 2),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.red, width: 2),
+        ),
         errorText: idErrorMessage,
         errorStyle: const TextStyle(color: Colors.red, fontSize: 13),
         errorMaxLines: 1,
@@ -151,9 +166,27 @@ class LoginPageState extends State<LoginPage>{
       keyboardType: TextInputType.number,
       decoration: InputDecoration(
         labelText: "비밀번호",
-        enabledBorder: customBorder(2, Colors.blue),
-        errorBorder: customBorder(2, Colors.red),
-        focusedErrorBorder: customBorder(4, Colors.red),
+        labelStyle: TextStyle(color: Colors.indigoAccent,),
+        prefixIcon: Icon(
+          Icons.lock,
+          color: Colors.blueAccent,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.indigoAccent, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.indigoAccent, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.red, width: 2),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.red, width: 2),
+        ),
         errorText: passwordErrorMessage,
         errorStyle: const TextStyle(color: Colors.red, fontSize: 13),
         errorMaxLines: 1,
@@ -175,15 +208,26 @@ class LoginPageState extends State<LoginPage>{
   }
 
   Widget loginButtonWidget(){
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero,
+    return SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.indigoAccent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            padding: EdgeInsets.symmetric(vertical: 12.0),
+          ),
+          child: Text(
+            "로그인",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          onPressed: signIn,
         ),
-        padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 160.0),
-      ),
-      child: Text("로그인"),
-      onPressed: signIn,
     );
   }
 
@@ -194,26 +238,26 @@ class LoginPageState extends State<LoginPage>{
         GestureDetector(
             child: Text(
               "회원가입",
-              style: TextStyle(fontSize: 12),
+              style: TextStyle(fontSize: 12, color: Colors.indigoAccent, fontWeight: FontWeight.bold),
             ),
             onTap: ()=> Navigator.pushNamed(context, '/signUp')
         ),
-        SizedBox(width: 200),
+        SizedBox(width: 180),
         GestureDetector(
             child: Text(
               "아이디",
-              style: TextStyle(fontSize: 12),
+              style: TextStyle(fontSize: 12, color: Colors.indigoAccent, fontWeight: FontWeight.bold),
             ),
             onTap: ()=> Navigator.pushNamed(context, '/findID')
         ),
         Text(
           " / ",
-          style: TextStyle(fontSize: 12),
+          style: TextStyle(fontSize: 12, color: Colors.indigoAccent, fontWeight: FontWeight.bold),
         ),
         GestureDetector(
             child: Text(
               "비밀번호 찾기",
-              style: TextStyle(fontSize: 12),
+              style: TextStyle(fontSize: 12, color: Colors.indigoAccent, fontWeight: FontWeight.bold),
             ),
             onTap: ()=> Navigator.pushNamed(context, '/findPassword')
         ),
@@ -221,31 +265,32 @@ class LoginPageState extends State<LoginPage>{
     );
   }
 
-  Widget titleText() {
-    return Text(
-      "가계부기",
-      style: TextStyle(fontSize: 50),
-    );
-  }
+  // Widget titleText() {
+  //   return Text(
+  //     "가계부기",
+  //     style: TextStyle(fontSize: 50),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Color(0xFFEFEFF4),
       body: Center(
           child: Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(30.0),
             child: Column(
                 children: [
-                  SizedBox(height: 100),
-                  titleText(),
-                  SizedBox(height: 20.0),
-                  Image.asset('assets/sangsang.png'),
+                  SizedBox(height: 140),
+                  // titleText(),
+                  // SizedBox(height: 20.0),
+                  Image.asset('assets/sangsang.png', height: 200),
+                  SizedBox(height: 10.0),
                   userIdWidget(),
-                  SizedBox(height: 20.0),
+                  SizedBox(height: 10.0),
                   passwordWidget(),
-                  SizedBox(height: 20.0),
+                  SizedBox(height: 10.0),
                   loginButtonWidget(),
                   SizedBox(height: 10.0),
                   smallButtonWidget(),

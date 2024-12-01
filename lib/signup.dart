@@ -325,9 +325,24 @@ class signUpPageState extends State<SignUpPage> {
       keyboardType: TextInputType.emailAddress,
       decoration: InputDecoration(
         labelText: "이메일",
-        enabledBorder: customBorder(2, Colors.blue),
-        errorBorder: customBorder(2, Colors.red),
-        focusedErrorBorder: customBorder(4, Colors.red),
+        labelStyle: TextStyle(color: Colors.indigoAccent),
+        contentPadding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.indigoAccent, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.indigoAccent, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.red, width: 2),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.red, width: 2),
+        ),
         errorText: emailErrorMessage,
         errorStyle: const TextStyle(color: Colors.red, fontSize: 13),
         errorMaxLines: 1,
@@ -350,9 +365,24 @@ class signUpPageState extends State<SignUpPage> {
       keyboardType: TextInputType.number,
       decoration: InputDecoration(
         labelText: "인증코드",
-        enabledBorder: customBorder(2, Colors.blue),
-        errorBorder: customBorder(2, Colors.red),
-        focusedErrorBorder: customBorder(4, Colors.red),
+        labelStyle: TextStyle(color: Colors.indigoAccent),
+        contentPadding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.indigoAccent, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.indigoAccent, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.red, width: 2),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.red, width: 2),
+        ),
         errorText: errorMessage,
         errorStyle: const TextStyle(color: Colors.red, fontSize: 13),
         errorMaxLines: 1,
@@ -375,13 +405,16 @@ class signUpPageState extends State<SignUpPage> {
             sendVerificationCode(_emailController.text.trim());
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.black38,
+            backgroundColor: Colors.indigoAccent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20.0),
           ),
-          child: Text("인증 요청",
-              style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold)),
+          child: Text(
+              "인증 요청",
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+          ),
         ),
       ],
     );
@@ -396,13 +429,16 @@ class signUpPageState extends State<SignUpPage> {
         ElevatedButton(
           onPressed: verifyCode,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.grey[700],
+            backgroundColor: Colors.indigoAccent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20.0),
           ),
-          child: Text("인증 확인",
-              style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold)),
+          child: Text(
+              "인증 확인",
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+          ),
         ),
       ],
     );
@@ -415,7 +451,6 @@ class signUpPageState extends State<SignUpPage> {
           borderRadius: BorderRadius.zero,
         ),
         padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-        // 패딩 조정
         minimumSize: Size(double.infinity, 50), // 최소 크기 설정
       ),
       child: Text("아이디 찾기"),
@@ -429,9 +464,24 @@ class signUpPageState extends State<SignUpPage> {
       keyboardType: TextInputType.name,
       decoration: InputDecoration(
         labelText: "닉네임",
-        enabledBorder: customBorder(2, Colors.blue),
-        errorBorder: customBorder(2, Colors.red),
-        focusedErrorBorder: customBorder(4, Colors.red),
+        labelStyle: TextStyle(color: Colors.indigoAccent),
+        contentPadding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.indigoAccent, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.indigoAccent, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.red, width: 2),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.red, width: 2),
+        ),
         errorText: nickNameErrorMessage,
         errorStyle: const TextStyle(color: Colors.red, fontSize: 13),
         errorMaxLines: 1,
@@ -463,9 +513,24 @@ class signUpPageState extends State<SignUpPage> {
       controller: _idController,
       decoration: InputDecoration(
         labelText: "아이디",
-        enabledBorder: customBorder(2, Colors.blue),
-        errorBorder: customBorder(2, Colors.red),
-        focusedErrorBorder: customBorder(4, Colors.red),
+        labelStyle: TextStyle(color: Colors.indigoAccent),
+        contentPadding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.indigoAccent, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.indigoAccent, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.red, width: 2),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.red, width: 2),
+        ),
         errorText: _isValidId ? null : '영어와 숫자를 포함하여 최소 6글자이상 입력해주세요',
         errorStyle: const TextStyle(color: Colors.red, fontSize: 13),
         errorMaxLines: 1,
@@ -482,13 +547,16 @@ class signUpPageState extends State<SignUpPage> {
         ElevatedButton(
           onPressed: _checkAndShowIdValidation,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.grey[700],
+            backgroundColor: Colors.indigoAccent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20.0),
           ),
-          child: Text("중복 확인",
-              style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold)),
+          child: Text(
+              "중복 확인",
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+          ),
         ),
       ],
     );
@@ -500,11 +568,25 @@ class signUpPageState extends State<SignUpPage> {
       controller: _passwordController,
       decoration: InputDecoration(
         labelText: "비밀번호",
-        enabledBorder: customBorder(2, Colors.blue),
-        errorBorder: customBorder(2, Colors.red),
-        focusedErrorBorder: customBorder(4, Colors.red),
+        labelStyle: TextStyle(color: Colors.indigoAccent),
+        contentPadding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.indigoAccent, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.indigoAccent, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.red, width: 2),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.red, width: 2),
+        ),
         errorText: _passwordError,
-        //////
         errorStyle: const TextStyle(color: Colors.red, fontSize: 13),
         errorMaxLines: 1,
       ),
@@ -531,11 +613,25 @@ class signUpPageState extends State<SignUpPage> {
       controller: _confirmPasswordController,
       decoration: InputDecoration(
         labelText: "비밀번호 확인",
-        enabledBorder: customBorder(2, Colors.blue),
-        errorBorder: customBorder(2, Colors.red),
-        focusedErrorBorder: customBorder(4, Colors.red),
+        labelStyle: TextStyle(color: Colors.indigoAccent),
+        contentPadding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.indigoAccent, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.indigoAccent, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.red, width: 2),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.red, width: 2),
+        ),
         errorText: _confirmPasswordError,
-        //////
         errorStyle: const TextStyle(color: Colors.red, fontSize: 13),
         errorMaxLines: 1,
       ),
@@ -562,14 +658,17 @@ class signUpPageState extends State<SignUpPage> {
         Expanded(
           child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey[700],
+                backgroundColor: Colors.indigoAccent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 100.0),
               ),
               onPressed: saveToFireStore,
-              child: Text("회원 가입",
-                  style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold)),
+              child: Text(
+                  "회원 가입",
+                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+              ),
           ),
         )
       ],
@@ -586,30 +685,33 @@ class signUpPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Color(0xFFEFEFF4),
       appBar: AppBar(
-        backgroundColor: Colors.grey[200],
-        title: Text('회원가입'),
+        backgroundColor: Colors.indigoAccent,
+        title: Text(
+          '신규 계정 등록',
+          style: TextStyle(color: Colors.white),
+        ),
         leading: const BackButton(
           color: Colors.white,
         ),
       ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(30.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               emailLine(),
-              SizedBox(height: 20),
+              SizedBox(height: 10),
               codeLine(),
               SizedBox(height: 10),
               nickNameWidget(),
-              SizedBox(height: 20),
+              SizedBox(height: 10),
               idWidget(),
-              SizedBox(height: 20),
+              SizedBox(height: 10),
               passwordWidget(),
-              SizedBox(height: 20),
+              SizedBox(height: 10),
               passwordCheckWidget(),
               SizedBox(height: 20),
               signUpButtonWidget()

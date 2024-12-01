@@ -93,18 +93,19 @@ class MakingSharePageState extends State<MakingSharePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Color(0xFFEFEFF4),
       appBar: AppBar(
+        backgroundColor: Colors.indigoAccent,
         leading: const BackButton(
-          color: Colors.black,
+          color: Colors.white,
         ),
         title: Text(
           '공유 설정',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.all(20.0),
+        padding: EdgeInsets.all(30.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -124,12 +125,12 @@ class MakingSharePageState extends State<MakingSharePage> {
                     onPressed: () {},
                     child: Text(
                       '수정',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 11, color: Colors.indigo, fontWeight: FontWeight.bold),
                     ),
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(horizontal: 8.0),
-                      foregroundColor: Colors.blue[700],
-                      backgroundColor: Colors.blue[100],
+                      foregroundColor: Colors.indigoAccent[700],
+                      backgroundColor: Colors.indigoAccent[100],
                     ),
                   ),
                 ),
@@ -145,7 +146,7 @@ class MakingSharePageState extends State<MakingSharePage> {
                   filled: true,
                   fillColor: Colors.grey[300],
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide.none,
                   ),
                   hintText: '방 이름을 입력하세요',
@@ -156,7 +157,7 @@ class MakingSharePageState extends State<MakingSharePage> {
             SizedBox(height: 20.0),
             Divider(),
             ListTile(
-              leading: Icon(Icons.chat_bubble, color: Colors.black),
+              leading: Icon(Icons.chat_bubble, color: Colors.indigoAccent),
               title: Text(
                 '카카오톡으로 친구 초대',
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -165,7 +166,7 @@ class MakingSharePageState extends State<MakingSharePage> {
             ),
             Divider(),
             ListTile(
-              leading: Icon(Icons.person_add, color: Colors.black),
+              leading: Icon(Icons.person_add, color: Colors.indigoAccent),
               title: Text(
                 '아이디로 친구 추가',
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -205,7 +206,10 @@ class MakingSharePageState extends State<MakingSharePage> {
             Center(
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey[700],
+                backgroundColor: Colors.indigoAccent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 minimumSize: Size(150, 50),
               ),
               onPressed: () {
@@ -213,7 +217,7 @@ class MakingSharePageState extends State<MakingSharePage> {
               },
               child: Text(
                 '만들기',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
               ),
@@ -228,7 +232,10 @@ class MakingSharePageState extends State<MakingSharePage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('아이디로 친구 추가'),
+          title: Text(
+              '아이디로 친구 추가',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -236,7 +243,10 @@ class MakingSharePageState extends State<MakingSharePage> {
                 controller: _friendIdController,
                 decoration: InputDecoration(
                   labelText: '친구 아이디 입력',
-                  border: OutlineInputBorder(),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(width: 1),
+                  ),
                 ),
               ),
             ],

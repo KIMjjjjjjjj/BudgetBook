@@ -53,7 +53,7 @@ class DeleteAccountPageState extends State<DeleteAccountPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Color(0xFFEFEFF4),
       appBar: AppBar(
         leading: const BackButton(
           color: Colors.white,
@@ -62,7 +62,7 @@ class DeleteAccountPageState extends State<DeleteAccountPage> {
           '계정 삭제',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.grey[800],
+        backgroundColor: Colors.indigoAccent,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -126,7 +126,10 @@ class DeleteAccountPageState extends State<DeleteAccountPage> {
             SizedBox(height: 100),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey[700],
+                backgroundColor: Colors.indigoAccent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 minimumSize: Size(150, 50),
               ),
               onPressed: () {

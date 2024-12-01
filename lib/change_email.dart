@@ -115,19 +115,19 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset : false,
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Color(0xFFEFEFF4),
       appBar: AppBar(
         leading: const BackButton(
           color: Colors.white,
         ),
         title: Text("이메일 변경", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.grey[800],
+        backgroundColor: Colors.indigoAccent,
       ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 80),
+            SizedBox(height: 150),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -146,6 +146,7 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
                   filled: true,
                   fillColor: Colors.grey[300],
                   errorText: errorMessage1,
+                  contentPadding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
                   errorBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(color: Colors.red, width: 1.2),
@@ -181,6 +182,7 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
                       filled: true,
                       fillColor: Colors.grey[300],
                       border: OutlineInputBorder(borderSide: BorderSide.none),
+                      contentPadding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
                     ),
                   ),
                 ),
@@ -190,7 +192,11 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
                     sendVerificationCode(_newEmailController.text.trim());
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black38,
+                    backgroundColor: Colors.indigoAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20.0),
                   ),
                   child: Text("인증 요청", style: TextStyle(fontSize: 16,color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
@@ -210,6 +216,7 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
                       filled: true,
                       fillColor: Colors.grey[300],
                       errorText: errorMessage2,
+                      contentPadding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                         borderSide: BorderSide(color: Colors.red, width: 1.2),
@@ -226,7 +233,11 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
                 ElevatedButton(
                   onPressed: verifyCode,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey[700],
+                    backgroundColor: Colors.indigoAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20.0),
                   ),
                   child: Text("인증 확인", style: TextStyle(fontSize: 16,color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
@@ -236,7 +247,10 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
             ElevatedButton(
               onPressed: changeEmail,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey[700],
+                backgroundColor: Colors.indigoAccent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 minimumSize: Size(150, 50),
               ),
               child: Text("이메일 변경", style: TextStyle(fontSize: 16,color: Colors.white, fontWeight: FontWeight.bold)),

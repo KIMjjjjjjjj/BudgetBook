@@ -118,7 +118,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Color(0xFFEFEFF4),
       appBar: AppBar(
         leading: const BackButton(
           color: Colors.white,
@@ -127,7 +127,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           '프로필 변경',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.grey[800],
+        backgroundColor: Colors.indigoAccent,
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
@@ -262,7 +262,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
             SizedBox(height: 100),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey[700],
+                backgroundColor: Colors.indigoAccent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 minimumSize: Size(150, 50),
               ),
               onPressed: () {

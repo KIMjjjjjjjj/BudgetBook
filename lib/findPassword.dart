@@ -111,9 +111,24 @@ class FindPasswordPageState extends State<FindPasswordPage> {
       keyboardType: TextInputType.emailAddress,
       decoration: InputDecoration(
         labelText: "이메일",
-        enabledBorder: customBorder(2, Colors.blue),
-        errorBorder: customBorder(2, Colors.red),
-        focusedErrorBorder: customBorder(4, Colors.red),
+        labelStyle: TextStyle(color: Colors.indigoAccent),
+        contentPadding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.indigoAccent, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.indigoAccent, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.red, width: 2),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.red, width: 2),
+        ),
         errorText: emailErrorMessage,
         errorStyle: const TextStyle(color: Colors.red, fontSize: 13),
         errorMaxLines: 1,
@@ -140,9 +155,24 @@ class FindPasswordPageState extends State<FindPasswordPage> {
       keyboardType: TextInputType.text,
       decoration: InputDecoration(
         labelText: "아이디",
-        enabledBorder: customBorder(2, Colors.blue),
-        errorBorder: customBorder(2, Colors.red),
-        focusedErrorBorder: customBorder(4, Colors.red),
+        labelStyle: TextStyle(color: Colors.indigoAccent),
+        contentPadding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 10.0),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.indigoAccent, width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.indigoAccent, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.red, width: 2),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(color: Colors.red, width: 1),
+        ),
         errorText: idErrorMessage,
         errorStyle: const TextStyle(color: Colors.red, fontSize: 13),
         errorMaxLines: 1,
@@ -166,13 +196,17 @@ class FindPasswordPageState extends State<FindPasswordPage> {
   Widget findIDWidget(){
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.indigoAccent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero,
+          borderRadius: BorderRadius.circular(8),
         ),
         padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0), // 패딩 조정
         minimumSize: Size(double.infinity, 50), // 최소 크기 설정
       ),
-      child: Text("비밀번호 재설정"),
+      child: Text(
+          "비밀번호 재설정",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+      ),
       onPressed: sendEmail,
     );
   }
@@ -181,24 +215,27 @@ class FindPasswordPageState extends State<FindPasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Color(0xFFEFEFF4),
       appBar: AppBar(
-          backgroundColor: Colors.grey[200],
-          title: Text('비밀번호 재설정'),
+          backgroundColor: Colors.indigoAccent,
+          title: Text(
+            '비밀번호 재설정',
+            style: TextStyle(color: Colors.white),
+          ),
           leading: const BackButton(
             color: Colors.white,
           ),
       ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: const EdgeInsets.all(30.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               emailWidget(),
-              SizedBox(height: 20.0),
+              SizedBox(height: 10.0),
               IDWidget(),
-              SizedBox(height: 20.0),
+              SizedBox(height: 10.0),
               findIDWidget(),
             ],
           ),

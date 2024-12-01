@@ -31,7 +31,7 @@ class NavigationBarState extends State<CustomNavigationBar> {
       body: _pages[_index],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        backgroundColor: Color(0xFFB1C3D1),
+        backgroundColor: Colors.indigoAccent,
         items: [
           BottomNavigationBarItem(icon: Icon(Icons.list), label: '내역'),
           BottomNavigationBarItem(icon: Icon(Icons.pie_chart), label: '그래프'),
@@ -39,9 +39,9 @@ class NavigationBarState extends State<CustomNavigationBar> {
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: '설정'),
         ],
         currentIndex: _index,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey[600],
-        onTap: (int index) { // Add onTap callback to update `_index`
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.blueGrey[200],
+        onTap: (int index) {
           setState(() {
             _index = index;
           });

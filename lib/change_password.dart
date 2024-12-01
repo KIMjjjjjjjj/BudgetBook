@@ -89,13 +89,13 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Color(0xFFEFEFF4),
       appBar: AppBar(
         leading: const BackButton(
           color: Colors.white,
         ),
         title: Text("비밀번호 변경", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.grey[800],
+        backgroundColor: Colors.indigoAccent,
       ),
       body: SafeArea(
         child: Column(
@@ -199,7 +199,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
             ElevatedButton(
               onPressed: _changePassword,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey[700],
+                backgroundColor: Colors.indigoAccent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 minimumSize: Size(150, 50),
               ),
               child: Text("비밀번호 변경", style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold)),

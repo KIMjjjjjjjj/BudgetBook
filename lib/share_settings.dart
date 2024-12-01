@@ -97,15 +97,16 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Color(0xFFEFEFF4),
       appBar: AppBar(
         leading: const BackButton(
-          color: Colors.black,
+          color: Colors.white,
         ),
         title: Text(
           '공유 설정',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
+        backgroundColor: Colors.indigoAccent,
       ),
       body: Padding(
         padding: EdgeInsets.all(20.0),
@@ -128,12 +129,12 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
                     onPressed: () {},
                     child: Text(
                       '수정',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 11, color: Colors.indigo, fontWeight: FontWeight.bold),
                     ),
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(horizontal: 8.0),
-                      foregroundColor: Colors.blue[700],
-                      backgroundColor: Colors.blue[100],
+                      foregroundColor: Colors.indigoAccent[700],
+                      backgroundColor: Colors.indigoAccent[100],
                     ),
                   ),
                 ),
@@ -160,7 +161,7 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
             SizedBox(height: 20.0),
             Divider(),
             ListTile(
-              leading: Icon(Icons.chat_bubble, color: Colors.black),
+              leading: Icon(Icons.chat_bubble, color: Colors.indigoAccent),
               title: Text(
                 '카카오톡으로 친구 초대',
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -169,7 +170,7 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
             ),
             Divider(),
             ListTile(
-              leading: Icon(Icons.person_add, color: Colors.black),
+              leading: Icon(Icons.person_add, color: Colors.indigoAccent),
               title: Text(
                 '아이디로 친구 추가',
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -209,7 +210,10 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
             Center(
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey[700],
+                backgroundColor: Colors.indigoAccent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 minimumSize: Size(150, 50),
               ),
               onPressed: () {
@@ -217,7 +221,7 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
               },
               child: Text(
                 '수정 하기',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
             ),

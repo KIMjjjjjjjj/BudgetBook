@@ -52,11 +52,13 @@ class _SettingPageState extends State<SettingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Color(0xFFEFEFF4),
       appBar: AppBar(
-        leading: const BackButton(
-          color: Colors.black,
+        title: Text(
+          '설정',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
+        backgroundColor: Colors.indigoAccent,
       ),
       body: Column(
         children: [
