@@ -81,6 +81,20 @@ class _HistoryPageState extends State<HistoryPage> {
     });
   }
 
+  Future<void> deleteTransaction(String collection, String docId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.elements)
+          .collection(collection)
+          .doc(docId)
+          .delete();
+      await loadTransactionsData();
+    } catch (e) {
+      print("Error deleting transaction: $e");
+    }
+  }
+
   Future<void> loadTransactionsData() async {
     if (user != null) {
       QuerySnapshot<Map<String, dynamic>> expenseDocs = await FirebaseFirestore.instance
@@ -105,6 +119,7 @@ class _HistoryPageState extends State<HistoryPage> {
         ...expenseDocs.docs.map((doc) {
           final data = doc.data();
           return {
+            'docId': doc.id,
             'date': data['date'],
             'day': data['day'] ?? 0,
             'month': data['month'] ?? 0,
@@ -118,6 +133,7 @@ class _HistoryPageState extends State<HistoryPage> {
         ...incomeDocs.docs.map((doc) {
           final data = doc.data();
           return {
+            'docId': doc.id,
             'date': data['date'],
             'day': data['day'] ?? 0,
             'month': data['month'] ?? 0,
@@ -327,7 +343,8 @@ class _HistoryPageState extends State<HistoryPage> {
                         transaction['category'] ?? '',
                         transaction['memo'] ?? '',
                         '${transaction['amount']?.toString() ?? '0'}원',
-                        isExpense: transaction['type']  == 'expense',
+                        transaction['docId'] ?? '', // 여기에 docId 추가
+                        isExpense: transaction['type'] == 'expense',
                       );
                     }).toList(),
                   );
@@ -436,12 +453,13 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
-  Widget _buildTransactionItem(String category, String memo, String amount, {bool isExpense = false}) {
+  Widget _buildTransactionItem(String category, String memo, String amount, String docId,
+      {bool isExpense = false}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 0.01),
       decoration: BoxDecoration(
-          color: Colors.white,
-          border: Border(bottom: BorderSide(color: Colors.grey))
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: Colors.grey)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -457,7 +475,7 @@ class _HistoryPageState extends State<HistoryPage> {
           Expanded(
             flex: 3,
             child: Text(
-              memo ?? '메모 없음',
+              memo.isNotEmpty ? memo : ' ',
               style: TextStyle(fontSize: 13.0),
               textAlign: TextAlign.left,
             ),
@@ -473,12 +491,19 @@ class _HistoryPageState extends State<HistoryPage> {
               textAlign: TextAlign.right,
             ),
           ),
+          IconButton(
+            icon: Icon(Icons.delete, color: Colors.grey),
+            onPressed: () async {
+              String collection = isExpense ? 'expense' : 'income';
+              await deleteTransaction(collection, docId);
+            },
+          ),
         ],
       ),
     );
   }
+  }
 
-}
 
 void _ExpenseIncomeDialog(BuildContext context, String elements) {
   showDialog(
