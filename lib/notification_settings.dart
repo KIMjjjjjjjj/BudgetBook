@@ -29,13 +29,41 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
     initializeLocalNotifications();
     createNotificationChannel();
     loadSettings();
-    getTocken();
     requestPermission();
     setupFCM();
     scheduleRegularNotification();
   }
 
-  //저장
+  Future<void> saveToFirestore(String data, int month, int day, String uid) async {
+    try {
+      await FirebaseFirestore.instance.collection('alarm').add({
+        'data': data,
+        'month': month,
+        'day': day,
+        'uid': uid,
+      });
+    } catch (e) {
+      print('에러');
+    }
+  }
+
+  Future<void> deleteFromFirestore(String uid, String data, int day) async {
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('alarm')
+          .where('uid', isEqualTo: uid)
+          .where('data', isEqualTo: data)
+          .where('day', isEqualTo: day)
+          .get();
+
+      for (var doc in snapshot.docs) {
+        await doc.reference.delete();
+      }
+    } catch (e) {
+      print('에러');
+    }
+  }
+
   Future<void> loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -81,15 +109,6 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
   }
 
   //초기 세팅
-  void getTocken() async {
-    final fcmToken = await FirebaseMessaging.instance.getToken();
-    final user = FirebaseAuth.instance.currentUser;
-    print('FCM Token: $fcmToken');
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user?.uid)
-        .update({'fcmToken': fcmToken});
-  }
   void requestPermission() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
 
@@ -145,7 +164,7 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
         AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
   }
-  //지출경고알림
+
   static Future<void> showNotification({String? title, String? body}) async {
     const AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
       'default_channel_id',
@@ -165,7 +184,6 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
     );
   }
 
-  //정기 지출 알림
   Future<void> scheduleRegularNotification() async {
     if (regularSpending){
       final now = tz.TZDateTime.now(tz.local);
@@ -255,7 +273,6 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
               ],
             ),
             Divider(),
-            // 정기 지출 알림
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -271,77 +288,88 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
               ],
             ),
             SizedBox(
-              height: 200,
-              child: ListView.builder(
-                itemCount: subscriptions.length,
-                itemBuilder: (context, index) {
-                  final subscription = subscriptions[index];
-                  return Row(
-                    children: [
-                      IconButton(
-                        icon: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.blue[100],
-                            shape: BoxShape.rectangle,
-                            borderRadius: BorderRadius.circular(4.0),
+                height: 200,
+                child: ListView.builder(
+                    itemCount: subscriptions.length,
+                    itemBuilder: (context, index) {
+                      final subscription = subscriptions[index];
+                      return Row(
+                        children: [
+                          IconButton(
+                              icon: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.blue[100],
+                                  shape: BoxShape.rectangle,
+                                  borderRadius: BorderRadius.circular(4.0),
+                                ),
+                                child: Icon(Icons.add, color: Colors.blue),
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  subscriptions.add({'text': '', 'day': 1});
+                                  textControllers.add(TextEditingController());
+                                });
+                              }
                           ),
-                          child: Icon(Icons.add, color: Colors.blue),
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            subscriptions.add({'text': '', 'day': 1});
-                            textControllers.add(TextEditingController());
-                          });
-                        }
-                      ),
-                      Expanded(
-                        child: TextField(
-                          controller: textControllers[index],
-                          decoration: InputDecoration(
-                            hintText: '예: NETFLIX',
-                            hintStyle: TextStyle(color: Colors.grey[600]),
+                          Expanded(
+                            child: TextField(
+                              controller: textControllers[index],
+                              decoration: InputDecoration(
+                                hintText: '예: NETFLIX',
+                                hintStyle: TextStyle(color: Colors.grey[600]),
+                              ),
+                              onChanged: (value) {
+                                setState(() {
+                                  subscriptions[index]['text'] = value;
+                                });
+                                saveSettings();
+                              },
+                            ),
                           ),
-                          onChanged: (value) {
-                            setState(() {
-                              subscriptions[index]['text'] = value;
-                            });
-                            saveSettings();
-                          },
-                        ),
-                      ),
-                      SizedBox(width: 20),
-                      Text('매월', style: TextStyle(fontSize: 16)),
-                      SizedBox(width: 10),
-                      DropdownButton<int>(
-                        value: subscription['day'] as int,
-                        items: List.generate(31, (index) => index + 1)
-                            .map((day) => DropdownMenuItem<int>(
+                          SizedBox(width: 20),
+                          Text('매월', style: TextStyle(fontSize: 16)),
+                          SizedBox(width: 10),
+                          DropdownButton<int>(
+                            value: subscription['day'] as int,
+                            items: List.generate(31, (index) => index + 1)
+                                .map((day) => DropdownMenuItem<int>(
                               value: day,
                               child: Text(day.toString()),
                             ))
-                            .toList(),
-                        onChanged: (day) {
-                          setState(() {
-                            subscription['day'] = day!;
-                          });
-                          saveSettings();
-                        },
-                      ),
-                      Text('일', style: TextStyle(fontSize: 16)),
-                      IconButton(
-                        icon: Icon(Icons.delete, color: Colors.grey),
-                        onPressed: () {
-                          setState(() {
-                            flutterLocalNotificationsPlugin.cancel(subscriptions[index]['text'].hashCode);
-                            subscriptions.removeAt(index);
-                            textControllers.removeAt(index);
-                          });
-                          saveSettings();
-                        }
-                      ),
-                    ],
-                  );
-              })
+                                .toList(),
+                            onChanged: (day) async {
+                              setState(() {
+                                subscription['day'] = day!;
+                              });
+                              saveSettings(); // 로컬 저장
+
+                              final uid = FirebaseAuth.instance.currentUser?.uid;
+                              if (uid != null) {
+                                await saveToFirestore(
+                                  subscription['text'] as String, DateTime.now().month, day!, uid,
+                                );
+                              }
+                            },
+                          ),
+                          Text('일', style: TextStyle(fontSize: 16)),
+                          IconButton(
+                            icon: Icon(Icons.delete, color: Colors.grey),
+                            onPressed: () async {
+                              setState(() {
+                                flutterLocalNotificationsPlugin.cancel(subscriptions[index]['text'].hashCode);
+                                subscriptions.removeAt(index);
+                                textControllers.removeAt(index);
+                              });
+                              saveSettings(); // 로컬 데이터 삭제
+                              final uid = FirebaseAuth.instance.currentUser?.uid;
+                              if (uid != null) {
+                                await deleteFromFirestore(uid, subscription['text'] as String, subscription['day'] as int);
+                              }
+                            },
+                          ),
+                        ],
+                      );
+                    })
             ),
             Divider(),
             // 방 초대 알림
@@ -371,4 +399,3 @@ class NotificationSettingsPageState extends State<NotificationSettingsPage> {
     );
   }
 }
-

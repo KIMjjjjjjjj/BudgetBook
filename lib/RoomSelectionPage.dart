@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class RoomSelectionPage extends StatefulWidget {
   @override
@@ -15,15 +17,89 @@ class RoomSelectionPageState extends State<RoomSelectionPage> {
 
   StreamSubscription? _subscription;
 
+  static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  FlutterLocalNotificationsPlugin();
+
   @override
   void initState() {
     super.initState();
+    getTocken();
+    initializeLocalNotifications();
+    AlarmCheck();
 
     _subscription = FirebaseFirestore.instance
         .collection('share')
         .snapshots()
         .listen((snapshot) {
       _checkSharedRoom();
+    });
+  }
+
+  void getTocken() async {
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+    final user = FirebaseAuth.instance.currentUser;
+    print('FCM Token: $fcmToken');
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user?.uid)
+        .set({'fcmToken': fcmToken}, SetOptions(merge: true));
+  }
+
+  static Future<void> initializeLocalNotifications() async {
+    const AndroidInitializationSettings initializationSettingsAndroid =
+    AndroidInitializationSettings('@mipmap/ic_launcher');
+
+    const InitializationSettings initializationSettings =
+    InitializationSettings(android: initializationSettingsAndroid);
+
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  }
+
+  static Future<void> showNotification({String? title, String? body}) async {
+    const AndroidNotificationDetails androidNotificationDetails =
+    AndroidNotificationDetails(
+      'default_channel_id',
+      'Default Channel',
+      channelDescription: '정기 지출 알림 채널',
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+
+    const NotificationDetails notificationDetails = NotificationDetails(
+      android: androidNotificationDetails,
+    );
+
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      title ?? ' ',
+      body ?? ' ',
+      notificationDetails,
+    );
+  }
+
+  void AlarmCheck() {
+    final userUid = FirebaseAuth.instance.currentUser?.uid;
+    if (userUid == null) {
+      print("로그인된 사용자가 없습니다.");
+      return;
+    }
+
+    FirebaseFirestore.instance.collection('alarm').snapshots().listen((snapshot) {
+      final now = DateTime.now();
+      final today = now.day;
+
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final alarmUid = data['uid'];
+        final alarmDay = data['day'];
+
+        if (alarmUid == userUid && alarmDay == today) {
+          showNotification(
+            title: '정기 지출 알림',
+            body: '금일 ${data['data']}에 대한 정기 지출이 예정되어 있습니다.',
+          );
+        }
+      }
     });
   }
 

@@ -35,27 +35,27 @@ class MakingSharePageState extends State<MakingSharePage> {
   }
 
   void CurrentUser() async {
-      final User? user = FirebaseAuth.instance.currentUser;
+    final User? user = FirebaseAuth.instance.currentUser;
 
-      if (user != null) {
-        LoginUserId = user.uid;
+    if (user != null) {
+      LoginUserId = user.uid;
 
-        var snapshot = await FirebaseFirestore.instance
-            .collection('register')
-            .doc(LoginUserId)
-            .get();
+      var snapshot = await FirebaseFirestore.instance
+          .collection('register')
+          .doc(LoginUserId)
+          .get();
 
-        if (snapshot.exists) {
-          var data = snapshot.data();
-          if (data != null && data.containsKey('id')) {
-            setState(() {
-              LoginUserRegisterId = data['id'];
-            });
-          }
+      if (snapshot.exists) {
+        var data = snapshot.data();
+        if (data != null && data.containsKey('id')) {
+          setState(() {
+            LoginUserRegisterId = data['id'];
+          });
         }
-      } 
-    } 
-  
+      }
+    }
+  }
+
 
   void SaveRooms() async {
     if (LoginUserRegisterId == null) {
@@ -64,30 +64,30 @@ class MakingSharePageState extends State<MakingSharePage> {
       );
       return;
     }
-    
-      String roomName = _roomNameController.text.trim();
 
-      if (roomName.isEmpty || items.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('방 이름과 아이디를 모두 입력해주세요.')),
-        );
-        return;
-      }
+    String roomName = _roomNameController.text.trim();
 
-      await FirebaseFirestore.instance.collection('share').add({
-        '방 이름': roomName,
-        'id': [LoginUserRegisterId, ...items],
-      });
-
+    if (roomName.isEmpty || items.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('공유방이 생성되었습니다.')),
+        SnackBar(content: Text('방 이름과 아이디를 모두 입력해주세요.')),
       );
+      return;
+    }
 
-      setState(() {
-        items.clear();
-        _roomNameController.clear();
-      });
-    } 
+    await FirebaseFirestore.instance.collection('share').add({
+      '방 이름': roomName,
+      'id': [LoginUserRegisterId, ...items],
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('공유방이 생성되었습니다.')),
+    );
+
+    setState(() {
+      items.clear();
+      _roomNameController.clear();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -157,15 +157,6 @@ class MakingSharePageState extends State<MakingSharePage> {
             SizedBox(height: 20.0),
             Divider(),
             ListTile(
-              leading: Icon(Icons.chat_bubble, color: Colors.indigoAccent),
-              title: Text(
-                '카카오톡으로 친구 초대',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              onTap: () {},
-            ),
-            Divider(),
-            ListTile(
               leading: Icon(Icons.person_add, color: Colors.indigoAccent),
               title: Text(
                 '아이디로 친구 추가',
@@ -204,23 +195,23 @@ class MakingSharePageState extends State<MakingSharePage> {
             ),
             Divider(),
             Center(
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.indigoAccent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.indigoAccent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  minimumSize: Size(150, 50),
                 ),
-                minimumSize: Size(150, 50),
-              ),
-              onPressed: () {
-                SaveRooms();
-              },
-              child: Text(
-                '만들기',
-                style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+                onPressed: () {
+                  SaveRooms();
+                },
+                child: Text(
+                  '만들기',
+                  style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
-              ),
           ],
         ),
       ),
@@ -276,19 +267,19 @@ class MakingSharePageState extends State<MakingSharePage> {
 
   void _addFriendById(String userId) async {
 
-      var userSnapshot = await FirebaseFirestore.instance
-          .collection('register')
-          .where('id', isEqualTo: userId)
-          .get();
+    var userSnapshot = await FirebaseFirestore.instance
+        .collection('register')
+        .where('id', isEqualTo: userId)
+        .get();
 
-      if (userSnapshot.docs.isNotEmpty) {
-        setState(() {
-          items.add(userId);
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('친구 아이디가 추가되었습니다.')),
-        );
-      }
+    if (userSnapshot.docs.isNotEmpty) {
+      setState(() {
+        items.add(userId);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('친구 아이디가 추가되었습니다.')),
+      );
     }
+  }
 
 }

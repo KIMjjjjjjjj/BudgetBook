@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:mailer/mailer.dart';
@@ -87,7 +88,12 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
           password: _currentPasswordController.text.trim(),
         );
         await user.reauthenticateWithCredential(credential);
-
+        await FirebaseFirestore.instance
+            .collection('register')
+            .doc(user!.uid)
+            .set(
+            {'email':_newEmailController.text.trim()}, SetOptions(merge: true)
+        );
         await user.updateEmail(_newEmailController.text.trim());
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('이메일이 성공적으로 변경되었습니다.'))
@@ -97,7 +103,7 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
           context,
           MaterialPageRoute(builder: (context) => LoginPage()),
         );
-            }  catch (error) {
+      }  catch (error) {
         setState(() {
           errorMessage1 = '현재 비밀번호가 올바르지 않습니다.';
         });

@@ -32,27 +32,27 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
 
   void _getCurrentUser() async {
 
-      final User? user = FirebaseAuth.instance.currentUser;
-      print('widget.elements: ${widget.elements}');
+    final User? user = FirebaseAuth.instance.currentUser;
+    print('widget.elements: ${widget.elements}');
 
-      if (user != null) {
-        LoginUserId = user.uid;
+    if (user != null) {
+      LoginUserId = user.uid;
 
-        var snapshot = await FirebaseFirestore.instance
-            .collection('register')
-            .doc(LoginUserId)
-            .get();
+      var snapshot = await FirebaseFirestore.instance
+          .collection('register')
+          .doc(LoginUserId)
+          .get();
 
-        if (snapshot.exists) {
-          var data = snapshot.data();
-          if (data != null && data.containsKey('id')) {
-            setState(() {
-              LoginUserRegisterId = data['id'];
-            });
-          }
+      if (snapshot.exists) {
+        var data = snapshot.data();
+        if (data != null && data.containsKey('id')) {
+          setState(() {
+            LoginUserRegisterId = data['id'];
+          });
         }
       }
     }
+  }
 
   void SaveRooms() async {
     if (LoginUserRegisterId == null) {
@@ -63,35 +63,35 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
     }
 
 
-      String roomName = _roomNameController.text.trim();
-      if (roomName.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('방 이름을 입력해주세요.')),
-        );
-        return;
-      }
-
-      var shareCollection = FirebaseFirestore.instance.collection('share');
-      var querySnapshot = await shareCollection
-          .where('방 이름', isEqualTo: widget.elements)
-          .get();
-
-      if (querySnapshot.docs.isNotEmpty) {
-        var doc = querySnapshot.docs.first;
-
-        await shareCollection.doc(doc.id).update({
-          '방 이름': roomName,
-        });
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('방 이름이  수정되었습니다.')),
-        );
-      }
-
-      setState(() {
-        _roomNameController.clear();
-      });
+    String roomName = _roomNameController.text.trim();
+    if (roomName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('방 이름을 입력해주세요.')),
+      );
+      return;
     }
+
+    var shareCollection = FirebaseFirestore.instance.collection('share');
+    var querySnapshot = await shareCollection
+        .where('방 이름', isEqualTo: widget.elements)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      var doc = querySnapshot.docs.first;
+
+      await shareCollection.doc(doc.id).update({
+        '방 이름': roomName,
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('방 이름이  수정되었습니다.')),
+      );
+    }
+
+    setState(() {
+      _roomNameController.clear();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -161,15 +161,6 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
             SizedBox(height: 20.0),
             Divider(),
             ListTile(
-              leading: Icon(Icons.chat_bubble, color: Colors.indigoAccent),
-              title: Text(
-                '카카오톡으로 친구 초대',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              onTap: () {},
-            ),
-            Divider(),
-            ListTile(
               leading: Icon(Icons.person_add, color: Colors.indigoAccent),
               title: Text(
                 '아이디로 친구 추가',
@@ -208,22 +199,22 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
             ),
             Divider(),
             Center(
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.indigoAccent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.indigoAccent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  minimumSize: Size(150, 50),
                 ),
-                minimumSize: Size(150, 50),
+                onPressed: () {
+                  SaveRooms();
+                },
+                child: Text(
+                  '수정 하기',
+                  style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
+                ),
               ),
-              onPressed: () {
-                SaveRooms();
-              },
-              child: Text(
-                '수정 하기',
-                style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
-              ),
-            ),
             ),
           ],
         ),
@@ -257,14 +248,24 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
               child: Text('취소'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 String userId = _friendIdController.text.trim();
-                if (userId.isNotEmpty) {
-                  _addFriendById(userId);
-                }
                 Navigator.pop(context);
+                if (userId.isNotEmpty) {
+                  invitefriendalarm(userId);
+                }
+                if (userId.isNotEmpty) {
+                  bool isAdded = invitefriendalarm(userId) as bool;
+                  if (isAdded) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('친구 아이디가 추가되었습니다.')),
+                    );
+                  }
+                }
               },
               child: Text('추가'),
+
             ),
           ],
         );
@@ -272,44 +273,97 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
     );
   }
 
-  void _addFriendById(String userId) async {
+
+
+  Future<void> invitefriendalarm(String userId) async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+
+    var inviteuser = await FirebaseFirestore.instance
+        .collection('register')
+        .where('id', isEqualTo: userId)
+        .get();
+
+    if (currentUser == null) {
+      print('사용자가 인증되지 않았습니다.');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('로그인이 필요합니다.')),
+      );
+      Navigator.pushReplacementNamed(context, '/login');
+      return;
+    }
+
+    try {
       var userSnapshot = await FirebaseFirestore.instance
-          .collection('register')
+          .collection('users')
           .where('id', isEqualTo: userId)
           .get();
 
-      if (userSnapshot.docs.isNotEmpty) {
-        setState(() {
-          items.add(userId);
-        });
+      if (userSnapshot.docs.isEmpty) {
+        print('친구 아이디를 찾을 수 없습니다.');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('친구 아이디가 추가되었습니다.')),
+          SnackBar(content: Text('친구 아이디를 찾을 수 없습니다.')),
+        );
+        return;
+      }
+
+      var friendData = userSnapshot.docs.first.data();
+      String? fcmToken = friendData['fcmToken'] as String?;
+      String? friendId = friendData['id'] as String?;
+
+      if (fcmToken == null || friendId == null) {
+        print('친구의 FCM 토큰 또는 ID가 없습니다.');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('푸시 알림을 보낼 수 없습니다.')),
+        );
+        return;
+      }
+
+      try {
+        await FirebaseFirestore.instance.collection('invite').add({
+          'inviterId': currentUser.uid,
+          'invitedId': friendId,
+          'fcmToken': fcmToken,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+
+        print('친구 ID와 FCM 토큰이 invite 컬렉션에 저장되었습니다.');
+
+        if (userSnapshot.docs.isNotEmpty) {
+          setState(() {
+            items.add(userId);
+          });
+        }
+      } catch (error) {
+        print('Firestore 저장 실패: $error');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('초대 데이터를 저장하는 중 오류가 발생했습니다.')),
+        );
+        return;
+      }
+
+      final callable = FirebaseFunctions.instance.httpsCallable(
+          'sendInviteNotification');
+      try {
+        final response = await callable.call();
+        if (response.data == null || !response.data['success']) {
+          throw Exception('서버에서 알림 전송이 실패했습니다.');
+        }
+
+        print('푸시 알림 전송 성공! Response: ${response.data}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('푸시 알림 전송 성공!')),
+        );
+      } catch (error) {
+        print('Callable error: $error');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('알림 전송에 실패했습니다.')),
         );
       }
-      await _sendFriendNotification(userId);
-    }
-
-
-  Future<void> _sendFriendNotification(String userId) async {
-    var userSnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        // .where('id', isEqualTo: userId)
-        .get();
-
-    if (userSnapshot.exists) {
-      String? fcmToken = userSnapshot.data()?['fcmToken'];
-
-      final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('sendInviteNotification');
-
-      final response = await callable.call({
-        'fcmToken': fcmToken,
-        'inviterId': userId,
-      });
-
-      print(response.data);
+    } catch (e) {
+      print('친구 추가 또는 알림 전송 실패: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('친구 추가 또는 알림 전송에 실패했습니다.')),
+      );
     }
   }
 }
-
-

@@ -12,7 +12,7 @@ import 'notification_settings.dart';
 class HistoryPage extends StatefulWidget {
   final String elements;
   const HistoryPage({required this.elements});
-  
+
   @override
   _HistoryPageState createState() => _HistoryPageState();
 }
@@ -130,7 +130,7 @@ class _HistoryPageState extends State<HistoryPage> {
         }).toList(),
       ];
 
-      loadedTransactions.sort((a,b) {
+      loadedTransactions.sort((a, b) {
         Timestamp dateA = a['date'] as Timestamp;
         Timestamp dateB = b['date'] as Timestamp;
         return dateB.compareTo(dateA);
@@ -142,35 +142,67 @@ class _HistoryPageState extends State<HistoryPage> {
 
       final prefs = await SharedPreferences.getInstance();
       final spendingWarning = prefs.getBool('spendingWarning') ?? true;
-      if (spendingWarning && expense! > budgetAmount!) {
-        NotificationSettingsPageState?.showNotification(
+      final hasAlerted = prefs.getBool('hasAlerted') ?? false;
+
+      print("Current Expense: $expense, Budget: $budgetAmount, HasAlerted: $hasAlerted");
+      if (spendingWarning &&
+          !hasAlerted &&
+          expense != null &&
+          budgetAmount != null &&
+          expense! > budgetAmount!) {
+        NotificationSettingsPageState.showNotification(
           title: '지출 경고 알림',
-          body: '총 지출이 설정한 예산을 초과했습니다',
+          body: '총 지출이 설정한 예산을 초과했습니다.',
         );
+
+        await prefs.setBool('hasAlerted', true);
+      }
+
+      if (expense != null && budgetAmount != null && expense! <= budgetAmount!) {
+        await prefs.setBool('hasAlerted', false);
       }
     }
   }
 
   void fetchBudget() async {
-    final userDoc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user?.uid)
-        .get();
+    try {
+      if (widget.elements == user?.uid) {
+        final userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(widget.elements)
+            .get();
 
-    final querySnapshot = await FirebaseFirestore.instance
-        .collection('share')
-        .where('id', arrayContains: userDoc.data()?['id'])
-        .get();
+        if (userDoc.exists && userDoc.data()?['budgetAmount'] != null) {
+          final userBudget = userDoc.data()?['budgetAmount'];
+          setState(() {
+            this.budgetAmount = userBudget;
+          });
+          print("Budget from users: $userBudget");
+          return;
+        }
+      } else {
+        final querySnapshot = await FirebaseFirestore.instance
+            .collection('share')
+            .where('방 이름', isEqualTo: widget.elements)
+            .get();
 
-    if (querySnapshot.docs.isNotEmpty) {
-      final doc = querySnapshot.docs.first;
-      final budgetAmount = doc.data()?['budgetAmount'];
+        if (querySnapshot.docs.isNotEmpty) {
+          final doc = querySnapshot.docs.first;
+          final sharedBudget = doc.data()?['budgetAmount'];
 
-      setState(() {
-        this.budgetAmount = budgetAmount;
-      });
+          setState(() {
+            this.budgetAmount = sharedBudget;
+          });
+          print("Budget from share: $sharedBudget");
+        } else {
+          print("No matching document in share collection.");
+        }
+      }
+    } catch (e) {
+      print("Error fetching budget: $e");
     }
   }
+
 
   Map<String, List<Map<String, dynamic>>> groupTransactionsByDay(List<Map<String, dynamic>> transactions) {
     Map<String, List<Map<String, dynamic>>> groupedTransactions = {};
@@ -478,7 +510,7 @@ void _ExpenseIncomeDialog(BuildContext context, String elements) {
 }
 
 class ExpensePage extends StatefulWidget {
-    final String elements;
+  final String elements;
 
   const ExpensePage({required this.elements});
   @override

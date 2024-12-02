@@ -96,7 +96,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
           .collection('register')
           .doc(user!.uid)
           .update({
-        'profileImageUrl':null,
+        'profileImageUrl':profileImageUrl,
       });
     }
 

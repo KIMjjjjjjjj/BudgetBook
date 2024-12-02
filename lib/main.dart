@@ -18,6 +18,7 @@ import 'RoomSelectionPage.dart';
 import 'make_share.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'firebase_messaging_service.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -25,13 +26,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        initialRoute: '/',
-        routes: {
-          '/' : (context) => LoginPage(),
-          '/findID' : (context) => FindIDPage(),
-          '/findPassword' : (context) => FindPasswordPage(),
-          '/signUp' : (context) => SignUpPage(),
-         '/chartDay': (context) {
+      initialRoute: '/',
+      routes: {
+        '/' : (context) => LoginPage(),
+        '/findID' : (context) => FindIDPage(),
+        '/findPassword' : (context) => FindPasswordPage(),
+        '/signUp' : (context) => SignUpPage(),
+        '/chartDay': (context) {
           final args = ModalRoute.of(context)!.settings.arguments as ChartArguments;
           return ChartDayPage(
             selectedDate: args.selectedDate,
@@ -53,13 +54,13 @@ class MyApp extends StatelessWidget {
           );
         },
         '/chartToday' : (context) => ChartTodayPage(elements: '',),
-         '/navigation': (context) {
+        '/navigation': (context) {
           final elements = ModalRoute.of(context)?.settings.arguments as String? ?? 'element';
           return CustomNavigationBar(elements: elements);
-        }, 
+        },
         '/RoomSelect' : (context) => RoomSelectionPage(),
         '/MakeRoom' : (context) => MakingSharePage(),
-        },
+      },
     );
   }
 }
@@ -75,16 +76,7 @@ void main() async {
   tz.initializeTimeZones();
   tz.setLocalLocation(tz.getLocation('Asia/Seoul'));
 
-  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+  await FirebaseMessagingService.initialize();
   runApp(MyApp());
 }
 
-Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print("Handling a background message: ${message.messageId}");
-  if (message.notification != null){
-    NotificationSettingsPageState.showNotification(
-      title: message.notification!.title,
-      body: message.notification!.body,
-    );
-  }
-}

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'loginPage.dart';
+
 class DeleteAccountPage extends StatefulWidget {
   const DeleteAccountPage({Key? key}) : super(key: key);
 
@@ -32,10 +34,14 @@ class DeleteAccountPageState extends State<DeleteAccountPage> {
         setState(() {
           errorMessage1 = null;
         });
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('계정이 삭제되었습니다.')),
         );
-        Navigator.of(context).pop();
+
       } else {
         setState((){
           errorMessage1 = '비밀번호가 일치하지 않습니다.';

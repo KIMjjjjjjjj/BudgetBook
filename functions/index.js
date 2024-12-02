@@ -118,3 +118,45 @@ export const sendInviteNotification = functions.https.onCall(async (data, contex
     );
   }
 });
+
+export const sendRoomInvitationNotification = onDocumentUpdated(
+  "share/{roomId}",
+  async (event) => {
+    const change = event.data;
+    const context = event.params;
+
+    const newValue = change.after.data();
+    const previousValue = change.before.data();
+
+    if (!newValue.id || !previousValue.id) return;
+
+    const addedUserIds = newValue.id.filter(
+      (userId) => !previousValue.id.includes(userId)
+    );
+
+    for (const userId of addedUserIds) {
+      const userDoc = await admin.firestore().collection("users").doc(userId).get();
+      const userData = userDoc.data();
+
+      if (!userData) continue;
+
+      const { fcmToken, roomInvitation } = userData;
+
+      if (!roomInvitation || !fcmToken) continue;
+
+      const message = {
+        notification: {
+          title: "방 초대 알림",
+          body: `${userId}님이 가계부 공유방에 초대되었습니다.`,
+        },
+        token: fcmToken,
+      };
+
+      try {
+        await admin.messaging().send(message);
+      } catch (error) {
+        console.error(`방 초대 알림 전송 실패: ${userId}`, error);
+      }
+    }
+  }
+);
