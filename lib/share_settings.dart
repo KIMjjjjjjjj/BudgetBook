@@ -295,7 +295,7 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
 
     try {
       var userSnapshot = await FirebaseFirestore.instance
-          .collection('users')
+          .collection('register')
           .where('id', isEqualTo: userId)
           .get();
 
