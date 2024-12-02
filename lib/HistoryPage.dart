@@ -503,50 +503,49 @@ class _HistoryPageState extends State<HistoryPage> {
 
   Widget _buildTransactionItem(String category, String memo, String amount, String docId,
       {bool isExpense = false}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 0.01),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border(bottom: BorderSide(color: Colors.grey)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            flex: 2,
-            child: Text(
-              category,
-              style: TextStyle(fontSize: 13.0),
-              textAlign: TextAlign.left,
-            ),
-          ),
-          Expanded(
-            flex: 3,
-            child: Text(
-              memo.isNotEmpty ? memo : ' ',
-              style: TextStyle(fontSize: 13.0),
-              textAlign: TextAlign.left,
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Text(
-              amount,
-              style: TextStyle(
-                fontSize: 14.0,
-                color: isExpense ? Colors.red : Colors.blue,
+    return GestureDetector(
+      onTap: () async {
+        String collection = isExpense ? 'expense' : 'income';
+        await deleteTransaction(collection, docId);
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border(bottom: BorderSide(color: Colors.grey)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              flex: 2,
+              child: Text(
+                category,
+                style: TextStyle(fontSize: 13.0),
+                textAlign: TextAlign.left,
               ),
-              textAlign: TextAlign.right,
             ),
-          ),
-          IconButton(
-            icon: Icon(Icons.delete, color: Colors.grey),
-            onPressed: () async {
-              String collection = isExpense ? 'expense' : 'income';
-              await deleteTransaction(collection, docId);
-            },
-          ),
-        ],
+            Expanded(
+              flex: 3,
+              child: Text(
+                memo.isNotEmpty ? memo : ' ',
+                style: TextStyle(fontSize: 13.0),
+                textAlign: TextAlign.left,
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text(
+                amount,
+                style: TextStyle(
+                  fontSize: 14.0,
+                  color: isExpense ? Colors.red : Colors.blue,
+                ),
+                textAlign: TextAlign.right,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
