@@ -373,7 +373,7 @@ class ChartWeekState extends State<ChartWeekPage>{
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 0.0),
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [

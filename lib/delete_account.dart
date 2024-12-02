@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -29,7 +30,14 @@ class DeleteAccountPageState extends State<DeleteAccountPage> {
       setState(() {
         errorMessage2 = null;
       });
+
       if (currentPassword == confirmPassword) {
+        await FirebaseFirestore.instance
+            .collection('register')
+            .doc(user!.uid)
+            .delete();
+
+
         await user?.delete();
         setState(() {
           errorMessage1 = null;

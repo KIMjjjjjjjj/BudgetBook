@@ -276,7 +276,7 @@ class LoginPageState extends State<LoginPage>{
             child: Column(
                 children: [
                   SizedBox(height: 80),
-                  Image.asset('assets/sangsang.png'),
+                  Image.asset('assets/images/sangsang.png'),
                   SizedBox(height: 15.0),
                   Container(
                     decoration: BoxDecoration(
@@ -304,6 +304,12 @@ class LoginPageState extends State<LoginPage>{
                         smallButtonWidget(),
                       ],
                     ),
+                  ),
+                  Image.asset(
+                    'assets/images/gagyebugi.png',
+                    width: 150, // 원하는 너비
+                    height: 80, // 원하는 높이
+                    fit: BoxFit.contain, // 이미지 비율 유지
                   ),
                 ]
             ),
