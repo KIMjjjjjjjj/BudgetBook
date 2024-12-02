@@ -11,7 +11,7 @@
 
 
 ### 2. 백엔드 서비스
-- **Firebase**:
+- **🔥 Firebase**:
   - Firestore: 실시간 데이터베이스
   - Firebase Authentication: 사용자 인증
   - Firebase Cloud Storage: 파일 저장
