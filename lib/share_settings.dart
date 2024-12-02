@@ -80,7 +80,7 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
       var doc = querySnapshot.docs.first;
 
       await shareCollection.doc(doc.id).update({
-        '방 이름': roomName,
+        '방 이름': roomName, 'id': FieldValue.arrayUnion([LoginUserRegisterId, ...items]),
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -89,6 +89,7 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
     }
 
     setState(() {
+      items.clear();
       _roomNameController.clear();
     });
   }
@@ -159,6 +160,15 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
               ),
             ),
             SizedBox(height: 20.0),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.chat_bubble, color: Colors.indigoAccent),
+              title: Text(
+                '카카오톡으로 친구 초대',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              onTap: () {},
+            ),
             Divider(),
             ListTile(
               leading: Icon(Icons.person_add, color: Colors.indigoAccent),
@@ -252,9 +262,6 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
                 String userId = _friendIdController.text.trim();
                 Navigator.pop(context);
                 if (userId.isNotEmpty) {
-                  invitefriendalarm(userId);
-                }
-                if (userId.isNotEmpty) {
                   bool isAdded = invitefriendalarm(userId) as bool;
                   if (isAdded) {
                     Navigator.pop(context);
@@ -265,7 +272,6 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
                 }
               },
               child: Text('추가'),
-
             ),
           ],
         );
@@ -277,11 +283,6 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
 
   Future<void> invitefriendalarm(String userId) async {
     final currentUser = FirebaseAuth.instance.currentUser;
-
-    var inviteuser = await FirebaseFirestore.instance
-        .collection('register')
-        .where('id', isEqualTo: userId)
-        .get();
 
     if (currentUser == null) {
       print('사용자가 인증되지 않았습니다.');
