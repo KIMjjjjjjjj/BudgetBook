@@ -128,9 +128,10 @@ class _BudgetSettingState extends State<BudgetSetting> {
       appBar: AppBar(
         title: Text(
           '이번달 예산',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.indigoAccent,
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),

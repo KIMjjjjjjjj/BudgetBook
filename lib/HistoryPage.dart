@@ -217,6 +217,7 @@ class _HistoryPageState extends State<HistoryPage> {
       backgroundColor: Color(0xFFEFEFF4),
       appBar: AppBar(
         backgroundColor: Color(0xFFEFEFF4),
+        automaticallyImplyLeading: false,
         titleSpacing: 15,
         title: Row(
           children: [

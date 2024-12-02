@@ -242,7 +242,7 @@ class LoginPageState extends State<LoginPage>{
             ),
             onTap: ()=> Navigator.pushNamed(context, '/signUp')
         ),
-        SizedBox(width: 180),
+        SizedBox(width: 160),
         GestureDetector(
             child: Text(
               "아이디",
@@ -265,35 +265,46 @@ class LoginPageState extends State<LoginPage>{
     );
   }
 
-  // Widget titleText() {
-  //   return Text(
-  //     "가계부기",
-  //     style: TextStyle(fontSize: 50),
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Color(0xFFEFEFF4),
+      backgroundColor: Colors.indigoAccent,
       body: Center(
           child: Padding(
-            padding: const EdgeInsets.all(30.0),
+            padding: const EdgeInsets.all(20.0),
             child: Column(
                 children: [
-                  SizedBox(height: 140),
-                  // titleText(),
-                  // SizedBox(height: 20.0),
-                  Image.asset('assets/sangsang.png', height: 200),
-                  SizedBox(height: 10.0),
-                  userIdWidget(),
-                  SizedBox(height: 10.0),
-                  passwordWidget(),
-                  SizedBox(height: 10.0),
-                  loginButtonWidget(),
-                  SizedBox(height: 10.0),
-                  smallButtonWidget(),
+                  SizedBox(height: 80),
+                  Image.asset('assets/sangsang.png'),
+                  SizedBox(height: 15.0),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10.0,
+                          offset: Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    height: 400,
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        userIdWidget(),
+                        SizedBox(height: 10.0),
+                        passwordWidget(),
+                        SizedBox(height: 10.0),
+                        loginButtonWidget(),
+                        SizedBox(height: 10.0),
+                        smallButtonWidget(),
+                      ],
+                    ),
+                  ),
                 ]
             ),
           )

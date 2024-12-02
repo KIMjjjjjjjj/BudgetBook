@@ -68,15 +68,15 @@ class ChartTodayState extends State<ChartTodayPage>{
 
 
   final List<Color> colorPalette = [
-    Colors.red,
-    Colors.cyanAccent,
-    Colors.green,
-    Colors.orange,
-    Colors.purple,
-    Colors.yellowAccent,
-    Colors.teal,
-    Colors.brown,
-    Colors.indigo,];
+    Colors.lightGreen.shade300,
+    Colors.pinkAccent.shade100,
+    Colors.amberAccent.shade200,
+    Colors.lightBlue.shade200,
+    Colors.deepOrangeAccent.shade100,
+    Colors.cyan.shade200,
+    Colors.purpleAccent.shade100,
+    Colors.tealAccent.shade200,
+    Colors.indigoAccent.shade100,];
 
   Map<String, Color> categoryColorMap = {}; // 카테고리별 색상 저장
 
@@ -187,7 +187,7 @@ class ChartTodayState extends State<ChartTodayPage>{
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Color(0xFFEFEFF4),
       body: Column(
         children: [
           selectDateWidget(),
@@ -260,8 +260,9 @@ class ChartTodayState extends State<ChartTodayPage>{
               PieChartData(
                 sections: sections,
                 borderData: FlBorderData(show: false),
-                sectionsSpace: 0,
+                sectionsSpace: 2,
                 centerSpaceRadius: 40, // 중앙 공간 반지름
+                startDegreeOffset: 270,
               ),
             ),
           ),
@@ -280,7 +281,7 @@ class ChartTodayState extends State<ChartTodayPage>{
                         padding: const EdgeInsets.symmetric(vertical: 12.0), // 위아래 여백 추가
                         child: Text(
                           '카테고리',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -290,7 +291,7 @@ class ChartTodayState extends State<ChartTodayPage>{
                         padding: const EdgeInsets.symmetric(vertical: 12.0), // 위아래 여백 추가
                         child: Text(
                           '퍼센트',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -300,7 +301,7 @@ class ChartTodayState extends State<ChartTodayPage>{
                         padding: const EdgeInsets.symmetric(vertical: 12.0), // 위아래 여백 추가
                         child: Text(
                           '금액',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                           textAlign: TextAlign.center,
                         ),
                       ),

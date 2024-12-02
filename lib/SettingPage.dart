@@ -56,9 +56,10 @@ class _SettingPageState extends State<SettingPage> {
       appBar: AppBar(
         title: Text(
           '설정',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.indigoAccent,
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         children: [
