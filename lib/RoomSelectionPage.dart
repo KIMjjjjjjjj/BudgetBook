@@ -40,7 +40,7 @@ class RoomSelectionPageState extends State<RoomSelectionPage> {
     final user = FirebaseAuth.instance.currentUser;
     print('FCM Token: $fcmToken');
     await FirebaseFirestore.instance
-        .collection('users')
+        .collection('register')
         .doc(user?.uid)
         .set({'fcmToken': fcmToken}, SetOptions(merge: true));
   }
