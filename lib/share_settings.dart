@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -295,7 +293,7 @@ class _SharingSettingsPageState extends State<SharingSettingsPage> {
 
     try {
       var userSnapshot = await FirebaseFirestore.instance
-          .collection('users')
+          .collection('register')
           .where('id', isEqualTo: userId)
           .get();
 
