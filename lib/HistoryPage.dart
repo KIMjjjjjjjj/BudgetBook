@@ -82,16 +82,64 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   Future<void> deleteTransaction(String collection, String docId) async {
-    try {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(widget.elements)
-          .collection(collection)
-          .doc(docId)
-          .delete();
-      await loadTransactionsData();
-    } catch (e) {
-      print("Error deleting transaction: $e");
+    bool? shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          content: Padding(
+              padding: const EdgeInsets.only(top: 40.0),
+              child: Text(
+                '이 내역을 삭제하시겠습니까?',
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 18.0,
+                ),
+              ),
+          ),
+          actions: [
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.red, // '취소' 버튼의 텍스트 색상
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(false); // 취소
+              },
+              child: Text('취소'),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.indigoAccent, // '삭제' 버튼의 텍스트 색상
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(true); // 삭제 확인
+              },
+              child: Text('삭제'),
+            ),
+          ],
+        );
+      },
+    );
+
+
+    if (shouldDelete == true) {
+      try {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(widget.elements)
+            .collection(collection)
+            .doc(docId)
+            .delete();
+        await loadTransactionsData();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('내역이 삭제되었습니다.')),
+        );
+      } catch (e) {
+        print("Error deleting transaction: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('삭제 중 오류가 발생했습니다.')),
+        );
+      }
     }
   }
 
