@@ -49,7 +49,7 @@
 - **로그인**: 아이디 및 비밀번호를 입력하여 로그인
 - **아이디 찾기**: 이메일을 통한 본인 인증 후 아이디 찾기
 - **비밀번호 찾기**: 이메일을 통한 본인 인증 후 비밀번호 재설정
-<img src="https://github.com/user-attachments/assets/c529d6cb-3dd0-4ed5-9d93-ca528dcb7ddd" width="30%" height="40%">
+<img src="https://github.com/user-attachments/assets/c529d6cb-3dd0-4ed5-9d93-ca528dcb7ddd" width="20%" height="30%">
 <img src="https://github.com/user-attachments/assets/3e5b4adf-2f2d-4276-b04a-ed726f4102e1" width="30%" height="40%">
 
 ### 2. **방 선택 화면**
