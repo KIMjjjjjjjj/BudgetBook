@@ -77,7 +77,7 @@
 - **프로필 편집**: 프로필 사진 변경과 닉네임 재설정 기능 제공
 - **공유 설정**: 공유방 이름 수정 및 아이디를 통한 유저 초대 기능 제공
 - **알림 설정**: 알림 기능 설정(지출 경고 알림, 정기 지출 알림, 초대 알림 등)
-<img src="https://github.com/user-attachments/assets/08a83f21-bd79-4f47-b386-e051f902bf98" width="30%" height="40%">
+<img src="https://github.com/user-attachments/assets/14c6cc42-9468-41c4-af0d-8bc9b2beb59e" width="30%" height="40%">
 <img src="https://github.com/user-attachments/assets/e04c4e04-614f-4b00-9dcf-42e4594dd77f" width="30%" height="40%">
 <img src="https://github.com/user-attachments/assets/bdc88b8e-dd09-4767-b0a1-76e6a63d5be5" width="30%" height="40%">
 <img src="https://github.com/user-attachments/assets/242a0c67-6f56-4ba8-87a6-1997fb91efd8" width="30%" height="40%">
